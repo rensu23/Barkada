@@ -1,0 +1,56 @@
+.box {
+  background: var(--box);
+  padding: 30px;
+  width: 100%;
+  max-width: 360px;
+  border: 2px solid #111;
+  border-radius: 12px; /* curved edges */
+}
+
+.box h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: white;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #555;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 6px;
+}
+
+.error {
+  color: var(--red);
+  font-size: 12px;
+  min-height: 14px;
+}
+
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #111;
+  color: white;
+  border: 1px solid #39ff14;
+  cursor: pointer;
+  display: block;
+  border-radius: 6px;
+}
+
+button:hover {
+  background: #39ff14;
+}
+
+.link-text {
+  color: #555;
+}
