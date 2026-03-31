@@ -25,7 +25,7 @@ form.addEventListener("submit", function(e) {
   }
 
   if (valid) {
-    alert("Logged in 🎮");
+    window.location.href = "dashboard.html";
   }
 });
 
