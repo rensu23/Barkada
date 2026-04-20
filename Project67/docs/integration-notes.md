@@ -1,28 +1,149 @@
-# Barkada Integration Notes
+# Integration Notes
 
-## Frontend to PHP flow
+## Root entry
 
-- `js/services/*.service.js` currently use localStorage-backed mock data plus Promise delays.
-- Later, each service can swap `fakeRequest()` for `fetch()` calls to matching PHP files inside `/php`.
-- The UI already uses schema-aligned field names like `group_id`, `contribution_id`, and `payment_id`.
+- Open the demo from `index.html` in the project root.
+- Recommended local server path with XAMPP: `http://localhost/Project67/`
+- Do not begin testing by opening nested pages directly first.
 
-## Suggested migration order
+## Current demo architecture
 
-1. Connect authentication endpoints first.
-2. Replace group list/detail/create/update services.
-3. Replace contribution and payment services.
-4. Add recurring cycle support after deciding on schema strategy.
+- `js/data/`
+  - seeded demo content aligned to the existing SQL schema
+- `js/services/`
+  - async mock service layer
+- `js/utils/storage.js`
+  - demo database storage plus session storage handling
+- `js/utils/calculations.js`
+  - shared summary and graph calculations
 
-## Session guidance
+## What is stored right now
 
-- Keep PHP session state simple at first.
-- Return safe user information only.
-- Store the active user in session after login.
+- `localStorage`
+  - `barkada-demo-database`
+    - the full demo database snapshot
+  - `barkada-session`
+    - the remembered session when "Remember me" is checked
+  - `barkada-session-type`
+    - whether the active session is local or session based
+  - `barkada-theme`
+    - light or dark mode preference
+- `sessionStorage`
+  - `barkada-session`
+    - the non-remembered session for the current tab only
+  - `barkada-session-type`
+    - notes that the current session is tab-only
+- cookie fallback
+  - `barkada-session`
+    - a simple demo fallback cookie for remembered sessions
 
-## Known frontend-only parts for now
+## How to replace the demo layer later
 
-- Password reset token verification
-- Detailed recurring cycle rows
-- Rejection note persistence if not added to schema
-- Real QR generation and camera scanning
-- Activity log history
+### Authentication
+
+Replace these files first:
+
+- `js/services/auth.service.js`
+- `js/utils/storage.js`
+- `php/auth/login.php`
+- `php/auth/register.php`
+- `php/auth/logout.php`
+- `php/auth/session.php`
+
+Suggested migration:
+
+1. Keep the frontend form validation.
+2. Replace the mock async return values with `fetch()` calls to the PHP auth endpoints.
+3. Stop storing user sessions in browser storage for production auth.
+4. Use PHP sessions instead.
+5. Return safe user details such as `user_id`, `name`, `email`, and role summary after login.
+
+### Groups
+
+Replace:
+
+- `js/services/group.service.js`
+- `php/groups/*.php`
+
+Important existing schema tables:
+
+- `groups`
+- `group_members`
+
+### Contributions and payments
+
+Replace:
+
+- `js/services/contribution.service.js`
+- `js/services/payment.service.js`
+- `php/contributions/*.php`
+- `php/payments/*.php`
+
+Important existing schema tables:
+
+- `contributions`
+- `payment_records`
+
+### Graph data
+
+Current graph calculations come from:
+
+- `js/utils/calculations.js`
+- `js/dashboard.js`
+
+To replace them later:
+
+1. Return real grouped counts and totals from PHP or calculate them in frontend from fetched rows.
+2. Keep the same data shape if possible.
+3. Reuse the existing calculation helpers if your PHP responses stay close to the current schema.
+
+## PHP endpoint intention map
+
+- `php/auth/login.php`
+  - login
+- `php/auth/register.php`
+  - sign up
+- `php/auth/forgot-password.php`
+  - request reset
+- `php/auth/reset-password.php`
+  - submit new password
+- `php/auth/logout.php`
+  - logout
+- `php/auth/session.php`
+  - restore session
+- `php/groups/list.php`
+  - groups for the current user
+- `php/groups/detail.php`
+  - one group detail
+- `php/groups/create.php`
+  - create group
+- `php/groups/update.php`
+  - update group
+- `php/groups/join.php`
+  - join by code
+- `php/groups/members.php`
+  - group member list
+- `php/contributions/list.php`
+  - contributions list
+- `php/contributions/create.php`
+  - add contribution
+- `php/payments/mark-paid.php`
+  - member marks paid
+- `php/payments/confirm.php`
+  - treasurer confirms
+- `php/payments/reject.php`
+  - treasurer rejects
+- `php/payments/history.php`
+  - payment history
+
+## Secure auth replacement reminder
+
+The current demo stores plain text passwords in mock data only because the backend is not connected yet.
+
+When you replace this layer:
+
+1. Hash passwords in PHP.
+2. Verify them server-side.
+3. Use prepared statements for all queries.
+4. Store login state in secure PHP sessions.
+5. Stop exposing password values to the frontend.

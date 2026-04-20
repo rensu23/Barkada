@@ -1,6 +1,8 @@
 import { APP_PAGES, NAV_ITEMS, QUICK_LINKS } from "./utils/constants.js";
-import { getSession, saveSession } from "./utils/storage.js";
+import { setActiveGroup } from "./services/auth.service.js";
+import { getState, getSession } from "./utils/storage.js";
 import { initialsFromName } from "./utils/helpers.js";
+import { getEffectiveRole, getGroupsForUserFromState, resolveActiveGroupId } from "./utils/calculations.js";
 
 function publicHeaderTemplate() {
   const isPageFolder = window.location.pathname.includes("/pages/");
@@ -28,17 +30,18 @@ function publicHeaderTemplate() {
   `;
 }
 
-function appSidebarTemplate(role, currentPage, session) {
+function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
   const links = NAV_ITEMS[role] || NAV_ITEMS.member;
+  const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
   return `
     <a class="brand" href="../pages/dashboard.html">
       <span class="brand-mark">B</span>
       <span>Barkada</span>
     </a>
     <div class="spotlight-card">
-      <p class="eyebrow">${role === "treasurer" ? "Treasurer view" : "Member view"}</p>
+      <p class="eyebrow">${role === "hybrid" ? "Hybrid demo" : role === "treasurer" ? "Treasurer demo" : "Member demo"}</p>
       <h3>${session.name}</h3>
-      <p class="helper-text">Switch the demo role in settings to preview both user experiences.</p>
+      <p class="helper-text">${activeGroup ? `Current group: ${activeGroup.group_name} (${activeGroup.member_role})` : "No active group selected yet."}</p>
     </div>
     <nav class="surface-list">
       ${links
@@ -62,14 +65,19 @@ function appSidebarTemplate(role, currentPage, session) {
   `;
 }
 
-function appTopbarTemplate(currentPage, session) {
+function appTopbarTemplate(currentPage, session, groups, activeGroupId) {
+  const options = groups
+    .map(
+      (group) => `<option value="${group.group_id}" ${Number(group.group_id) === Number(activeGroupId) ? "selected" : ""}>${group.group_name} • ${group.member_role}</option>`,
+    )
+    .join("");
   return `
     <div>
       <p class="app-kicker">Group Contribution Tracker</p>
       <h2>${APP_PAGES[currentPage] || "Barkada"}</h2>
     </div>
     <div class="header-actions">
-      <button class="button-ghost mobile-only" type="button" data-open-drawer-nav>Menu</button>
+      ${groups.length ? `<label class="helper-text">Group context<select data-group-switch>${options}</select></label>` : ""}
       <button class="button-ghost" type="button" data-theme-toggle>
         <span data-theme-label>Dark mode</span>
       </button>
@@ -107,26 +115,31 @@ export function initAppNavigation() {
   if (!shell) return;
 
   const session = getSession();
-  const role = session.role_view || "member";
+  if (!session) return;
+  const state = getState();
+  const groups = getGroupsForUserFromState(state, session.user_id);
+  const role = getEffectiveRole(groups);
+  const activeGroupId = resolveActiveGroupId(groups, session);
   const sidebar = document.querySelector("[data-sidebar]");
   const topbar = document.querySelector("[data-topbar]");
   const bottomNav = document.querySelector("[data-bottom-nav]");
 
-  if (sidebar) sidebar.innerHTML = appSidebarTemplate(role, shell, session);
-  if (topbar) topbar.innerHTML = appTopbarTemplate(shell, session);
+  if (sidebar) sidebar.innerHTML = appSidebarTemplate(role, shell, session, groups, activeGroupId);
+  if (topbar) topbar.innerHTML = appTopbarTemplate(shell, session, groups, activeGroupId);
   if (bottomNav) bottomNav.innerHTML = bottomNavTemplate(role, shell);
+
+  document.querySelector("[data-group-switch]")?.addEventListener("change", async (event) => {
+    await setActiveGroup(event.currentTarget.value);
+    window.location.reload();
+  });
 }
 
 export function initRoleSwitcher() {
   const field = document.querySelector("[data-role-switch]");
   if (!field) return;
   const session = getSession();
-  field.value = session.role_view || "treasurer";
-  field.addEventListener("change", () => {
-    session.role_view = field.value;
-    saveSession(session);
-    window.location.reload();
-  });
+  field.value = session?.effective_role || "member";
+  field.disabled = true;
 }
 
 export function initLandingLinks() {

@@ -60,6 +60,10 @@ export async function joinGroupByCode(joinCode, userId) {
     throw new Error("That group code is invalid or has expired.");
   }
 
+  if (!userId) {
+    return fakeRequest({ ...group, preview_only: true }, 320);
+  }
+
   const membershipExists = state.group_members.some((member) => member.group_id === group.group_id && member.user_id === userId);
   if (!membershipExists) {
     state.group_members.push({
@@ -82,6 +86,19 @@ export async function getMembersForGroup(groupId) {
     .map((member) => ({
       ...member,
       user: state.users.find((user) => user.user_id === member.user_id),
+      payment_summary: state.payment_records
+        .filter((payment) => {
+          const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
+          return contribution?.group_id === Number(groupId) && payment.user_id === member.user_id;
+        })
+        .reduce(
+          (summary, payment) => {
+            summary.total += 1;
+            summary[payment.status] = (summary[payment.status] || 0) + 1;
+            return summary;
+          },
+          { total: 0, Paid: 0, Pending: 0, "Not Paid": 0, Rejected: 0 },
+        ),
     }));
 
   return fakeRequest(rows, 260);

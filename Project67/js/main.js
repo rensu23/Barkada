@@ -1,4 +1,4 @@
-import { initAuthPages } from "./auth.js";
+import { initAuthPages, initRouteGuards } from "./auth.js";
 import { initDashboardPage } from "./dashboard.js";
 import { initGroupsPage } from "./groups.js";
 import { initContributionsPage } from "./contributions.js";
@@ -12,6 +12,8 @@ import { initAppNavigation, initLandingLinks, initPublicNavigation, initRoleSwit
 
 document.addEventListener("DOMContentLoaded", async () => {
   applySavedTheme();
+  const canContinue = initRouteGuards();
+  if (!canContinue) return;
   initPublicNavigation();
   initAppNavigation();
   initLandingLinks();

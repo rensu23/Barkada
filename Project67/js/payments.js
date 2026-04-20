@@ -1,16 +1,27 @@
 import { getPendingPayments, confirmPayment, markPaymentAsDone, rejectPayment } from "./services/payment.service.js";
 import { getCurrentSession } from "./services/auth.service.js";
 import { getContributionHistory } from "./services/contribution.service.js";
+import { getState } from "./utils/storage.js";
 import { formatCurrency, formatShortDateTime } from "./utils/formatters.js";
 import { openModal, showToast } from "./ui.js";
+import { getGroupsForUserFromState } from "./utils/calculations.js";
 
 export async function initPaymentsPage() {
   const page = document.body.dataset.appPage;
   const session = await getCurrentSession();
+  const state = getState();
+  const groups = getGroupsForUserFromState(state, session.user_id);
+  const activeMembership = groups.find((group) => Number(group.group_id) === Number(session.active_group_id));
+  const isTreasurerHere = activeMembership?.member_role === "Treasurer";
 
   if (page === "confirmations") {
-    const pending = await getPendingPayments();
     const list = document.querySelector("[data-confirmations-list]");
+    if (!isTreasurerHere) {
+      list.innerHTML = `<article class="card"><h3>Treasurer access needed</h3><p class="helper-text">Switch to a group where this account is a treasurer to review confirmations. The hybrid account is best for testing this.</p></article>`;
+      return;
+    }
+
+    const pending = await getPendingPayments(session.active_group_id);
     list.innerHTML = pending
       .map(
         (item) => `
@@ -70,8 +81,8 @@ export async function initPaymentsPage() {
     if (!actionsWrap) return;
 
     actionsWrap.innerHTML = history
+      .filter((item) => Number(item.group.group_id) === Number(session.active_group_id))
       .filter((item) => item.status === "Not Paid" || item.status === "Rejected")
-      .slice(0, 2)
       .map(
         (item) => `
         <article class="mobile-list-item">
@@ -87,6 +98,10 @@ export async function initPaymentsPage() {
       `,
       )
       .join("");
+
+    if (!actionsWrap.innerHTML.trim()) {
+      actionsWrap.innerHTML = `<article class="mobile-list-item"><strong>No payment action needed</strong><p class="helper-text">This group context does not currently have unpaid or rejected items for you.</p></article>`;
+    }
 
     actionsWrap.querySelectorAll("[data-mark-paid]").forEach((button) => {
       button.addEventListener("click", async () => {

@@ -1,77 +1,52 @@
 import { getCurrentSession } from "./services/auth.service.js";
-import { getContributions } from "./services/contribution.service.js";
 import { getPendingPayments } from "./services/payment.service.js";
-import { getGroupsForUser } from "./services/group.service.js";
 import { getState } from "./utils/storage.js";
 import { formatCurrency, formatShortDateTime } from "./utils/formatters.js";
-
-function buildSummary(session, groups, contributions, pending, state) {
-  const groupIds = groups.map((group) => group.group_id);
-  const contributionIds = contributions.map((item) => item.contribution_id);
-  const payments = state.payment_records.filter((payment) => contributionIds.includes(payment.contribution_id));
-
-  const totalTarget = groups.reduce((sum, group) => sum + Number(group.target_amount || 0), 0);
-  const totalCollected = contributions.reduce((sum, contribution) => {
-    const paidCount = payments.filter((payment) => payment.contribution_id === contribution.contribution_id && payment.status === "Paid").length;
-    return sum + paidCount * Number(contribution.amount);
-  }, 0);
-  const totalPending = contributions.reduce((sum, contribution) => {
-    const count = payments.filter((payment) => payment.contribution_id === contribution.contribution_id && payment.status === "Pending").length;
-    return sum + count * Number(contribution.amount);
-  }, 0);
-
-  const unpaidCount = payments.filter((payment) => payment.status === "Not Paid").length;
-  const paidCount = payments.filter((payment) => payment.status === "Paid").length;
-  const pendingCount = payments.filter((payment) => payment.status === "Pending").length;
-
-  return {
-    totalGroups: groupIds.length,
-    totalTarget,
-    totalCollected,
-    totalPending,
-    paidCount,
-    pendingCount,
-    unpaidCount,
-    completion: totalTarget ? Math.round((totalCollected / totalTarget) * 100) : 0,
-    pendingItems: pending.length,
-  };
-}
+import { buildDashboardMetrics, getUserVisibleActivity } from "./utils/calculations.js";
 
 export async function initDashboardPage() {
   if (document.body.dataset.appPage !== "dashboard") return;
 
   const session = await getCurrentSession();
-  const groups = await getGroupsForUser(session.user_id);
-  const contributions = await getContributions();
   const state = getState();
-  const pending = await getPendingPayments();
-  const summary = buildSummary(session, groups, contributions.filter((item) => groups.some((group) => group.group_id === item.group_id)), pending, state);
+  const metricsState = buildDashboardMetrics(state, session.user_id, session.active_group_id);
+  const pending = await getPendingPayments(session.active_group_id);
   const metrics = document.querySelector("[data-dashboard-stats]");
   const charts = document.querySelector("[data-dashboard-charts]");
   const activity = document.querySelector("[data-dashboard-activity]");
   const overview = document.querySelector("[data-dashboard-overview]");
+  const actions = document.querySelector("[data-dashboard-actions]");
+  const role = session.effective_role || "member";
+  const paidPct = metricsState.payments.length ? Math.round((metricsState.paidCount / metricsState.payments.length) * 100) : 0;
+  const pendingPct = metricsState.payments.length ? paidPct + Math.round((metricsState.pendingCount / metricsState.payments.length) * 100) : 0;
+  const rejectedPct = metricsState.payments.length ? pendingPct + Math.round((metricsState.rejectedCount / metricsState.payments.length) * 100) : 0;
 
-  const role = session.role_view || "treasurer";
   metrics.innerHTML = `
-    <article class="stat-card"><span class="muted">${role === "treasurer" ? "Total groups" : "Joined groups"}</span><strong>${summary.totalGroups}</strong><span class="helper-text">Across your active barkadas and orgs.</span></article>
-    <article class="stat-card"><span class="muted">${role === "treasurer" ? "Total target" : "Current due"}</span><strong>${formatCurrency(role === "treasurer" ? summary.totalTarget : summary.totalPending)}</strong><span class="helper-text">${role === "treasurer" ? "Combined group targets." : "Pending confirmations and unpaid dues."}</span></article>
-    <article class="stat-card"><span class="muted">${role === "treasurer" ? "Collected" : "Confirmed payments"}</span><strong>${formatCurrency(summary.totalCollected)}</strong><span class="helper-text">${role === "treasurer" ? "Confirmed by treasurers." : "Your confirmed total in demo data."}</span></article>
-    <article class="stat-card"><span class="muted">${role === "treasurer" ? "Pending claims" : "Waiting review"}</span><strong>${summary.pendingItems}</strong><span class="helper-text">${role === "treasurer" ? "Need confirmation today." : "Payments you marked as done."}</span></article>
+    <article class="stat-card"><span class="muted">${role === "treasurer" ? "Treasurer groups" : role === "hybrid" ? "My active groups" : "Joined groups"}</span><strong>${metricsState.groups.length}</strong><span class="helper-text">Counts come from your memberships in group_members.</span></article>
+    <article class="stat-card"><span class="muted">${role === "member" ? "Current due amount" : "Target amount"}</span><strong>${formatCurrency(role === "member" ? metricsState.myPendingAmount : metricsState.totalTarget)}</strong><span class="helper-text">${role === "member" ? "Your unpaid, rejected, and pending dues in the active group." : "Scoped to the currently selected group context."}</span></article>
+    <article class="stat-card"><span class="muted">${role === "member" ? "Confirmed contribution total" : "Collected total"}</span><strong>${formatCurrency(role === "member" ? metricsState.myConfirmedTotal : metricsState.totalCollected)}</strong><span class="helper-text">Always recalculated from payment_records and contributions.</span></article>
+    <article class="stat-card"><span class="muted">Pending confirmations</span><strong>${role === "member" ? metricsState.myPendingCount : pending.length}</strong><span class="helper-text">${role === "member" ? "Only your payments waiting for review." : "Ready for treasurer action in this context."}</span></article>
   `;
+
+  if (actions) {
+    actions.innerHTML = role === "member"
+      ? `<a class="button" href="./contributions.html">Review my dues</a><a class="button-secondary" href="./member-qr.html">Open my QR</a>`
+      : `<a class="button" href="./create-group.html">Create group</a><a class="button-secondary" href="./confirmations.html">Review pending claims</a>`;
+  }
 
   charts.innerHTML = `
     <article class="chart-card">
       <div class="page-header">
         <div>
           <p class="eyebrow">Collected vs target</p>
-          <h3>${summary.completion}% complete</h3>
+          <h3>${metricsState.completion}% complete</h3>
         </div>
-        <span class="status-chip status-paid">${formatCurrency(summary.totalCollected)}</span>
+        <span class="status-chip status-paid">${formatCurrency(metricsState.totalCollected)}</span>
       </div>
-      <div class="progress-track space-top"><div class="progress-fill" style="--value:${summary.completion}%"></div></div>
+      <div class="progress-track space-top"><div class="progress-fill" style="--value:${metricsState.completion}%"></div></div>
       <div class="chart-legend space-top">
-        <div class="legend-item"><span>Target</span><strong>${formatCurrency(summary.totalTarget)}</strong></div>
-        <div class="legend-item"><span>Pending</span><strong>${formatCurrency(summary.totalPending)}</strong></div>
+        <div class="legend-item"><span>Target</span><strong>${formatCurrency(metricsState.totalTarget)}</strong></div>
+        <div class="legend-item"><span>Pending</span><strong>${formatCurrency(metricsState.totalPendingAmount)}</strong></div>
       </div>
     </article>
     <article class="chart-card">
@@ -81,17 +56,18 @@ export async function initDashboardPage() {
           <h3>Paid, pending, unpaid</h3>
         </div>
       </div>
-      <div class="chart-ring"></div>
+      <div class="chart-ring" style="--paid-value:${paidPct}%; --pending-value:${pendingPct}%; --rejected-value:${rejectedPct}%"></div>
       <div class="chart-legend space-top">
-        <div class="legend-item"><span class="status-chip status-paid">Paid</span><strong>${summary.paidCount}</strong></div>
-        <div class="legend-item"><span class="status-chip status-pending">Pending</span><strong>${summary.pendingCount}</strong></div>
-        <div class="legend-item"><span class="status-chip status-unpaid">Not Paid</span><strong>${summary.unpaidCount}</strong></div>
+        <div class="legend-item"><span class="status-chip status-paid">Paid</span><strong>${metricsState.paidCount}</strong></div>
+        <div class="legend-item"><span class="status-chip status-pending">Pending</span><strong>${metricsState.pendingCount}</strong></div>
+        <div class="legend-item"><span class="status-chip status-rejected">Rejected</span><strong>${metricsState.rejectedCount}</strong></div>
+        <div class="legend-item"><span class="status-chip status-unpaid">Not Paid</span><strong>${metricsState.unpaidCount}</strong></div>
       </div>
     </article>
   `;
 
-  overview.innerHTML = groups
-    .slice(0, 3)
+  overview.innerHTML = metricsState.groupProgress
+    .slice(0, 4)
     .map(
       (group) => `
       <article class="card">
@@ -103,20 +79,21 @@ export async function initDashboardPage() {
           </div>
           <a class="button-ghost" href="../pages/group-details.html?group_id=${group.group_id}">View</a>
         </div>
+        <div class="progress-track space-top"><div class="progress-fill" style="--value:${group.completion}%"></div></div>
         <div class="summary-row">
           <span>Deadline</span>
           <strong>${group.deadline || "Flexible"}</strong>
         </div>
         <div class="summary-row">
-          <span>Target</span>
-          <strong>${formatCurrency(group.target_amount)}</strong>
+          <span>Collected</span>
+          <strong>${formatCurrency(group.collected)} / ${formatCurrency(group.target_amount)}</strong>
         </div>
       </article>
     `,
     )
     .join("");
 
-  activity.innerHTML = state.activity_logs
+  activity.innerHTML = getUserVisibleActivity(state, session.user_id, session.active_group_id)
     .slice(0, 5)
     .map(
       (item) => `

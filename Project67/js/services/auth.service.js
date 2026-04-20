@@ -1,5 +1,5 @@
 import { fakeRequest } from "./api.service.js";
-import { clearSession, getSession, getState, saveSession, saveState } from "../utils/storage.js";
+import { buildSessionForUser, clearSession, getSession, getState, saveSession, saveState, updateSession } from "../utils/storage.js";
 
 export async function loginUser(formData) {
   const state = getState();
@@ -13,13 +13,8 @@ export async function loginUser(formData) {
     throw new Error("The password did not match our demo account.");
   }
 
-  const session = {
-    user_id: matchedUser.user_id,
-    name: matchedUser.name,
-    email: matchedUser.email,
-    role_view: formData.role_view || "treasurer",
-  };
-  saveSession(session);
+  const session = buildSessionForUser(matchedUser);
+  saveSession(session, Boolean(formData.remember_me));
   return fakeRequest(session);
 }
 
@@ -66,10 +61,19 @@ export async function resetPassword(formData) {
 }
 
 export async function getCurrentSession() {
-  return fakeRequest(getSession(), 120);
+  const session = getSession();
+  if (!session) {
+    throw new Error("No active session found.");
+  }
+  return fakeRequest(session, 120);
 }
 
 export async function logoutUser() {
   clearSession();
   return fakeRequest({ ok: true }, 120);
+}
+
+export async function setActiveGroup(groupId) {
+  const session = updateSession({ active_group_id: Number(groupId) });
+  return fakeRequest(session, 120);
 }

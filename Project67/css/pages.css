@@ -70,7 +70,12 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at center, var(--color-surface) 52%, transparent 53%),
-    conic-gradient(var(--color-primary) 0 62%, var(--color-warning) 62% 81%, color-mix(in srgb, var(--color-text-muted) 30%, transparent) 81% 100%);
+    conic-gradient(
+      var(--color-primary) 0 var(--paid-value, 62%),
+      var(--color-warning) var(--paid-value, 62%) var(--pending-value, 81%),
+      color-mix(in srgb, var(--color-danger) 24%, transparent) var(--pending-value, 81%) var(--rejected-value, 88%),
+      color-mix(in srgb, var(--color-text-muted) 30%, transparent) var(--rejected-value, 88%) 100%
+    );
   margin-inline: auto;
 }
 

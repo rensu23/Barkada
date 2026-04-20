@@ -12,7 +12,7 @@ function appendActivity(state, title, meta) {
   });
 }
 
-export async function getPendingPayments() {
+export async function getPendingPayments(groupId = null) {
   const state = getState();
   const rows = state.payment_records
     .filter((payment) => payment.status === PAYMENT_STATUS.PENDING)
@@ -21,18 +21,21 @@ export async function getPendingPayments() {
       const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
       const group = state.groups.find((item) => item.group_id === contribution.group_id);
       return { ...payment, user, contribution, group };
-    });
+    })
+    .filter((payment) => (groupId ? Number(payment.group.group_id) === Number(groupId) : true));
   return fakeRequest(rows, 260);
 }
 
 export async function markPaymentAsDone(paymentId) {
   const state = getState();
   const payment = state.payment_records.find((item) => Number(item.payment_id) === Number(paymentId));
+  const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
+  const member = state.users.find((item) => item.user_id === payment.user_id);
   payment.status = PAYMENT_STATUS.PENDING;
   payment.marked_at = new Date().toISOString();
   payment.confirmed_at = null;
   payment.confirmed_by = null;
-  appendActivity(state, "A member marked a contribution as paid", "Status changed to pending confirmation.");
+  appendActivity(state, `${member.name} marked ${contribution.title} as paid`, `Group ${contribution.group_id} now needs treasurer review.`);
   saveState(state);
   return fakeRequest(payment, 360);
 }
@@ -40,11 +43,13 @@ export async function markPaymentAsDone(paymentId) {
 export async function confirmPayment(paymentId, confirmedBy) {
   const state = getState();
   const payment = state.payment_records.find((item) => Number(item.payment_id) === Number(paymentId));
+  const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
+  const member = state.users.find((item) => item.user_id === payment.user_id);
   payment.status = PAYMENT_STATUS.PAID;
   payment.confirmed_at = new Date().toISOString();
   payment.confirmed_by = confirmedBy;
   payment.rejection_note = "";
-  appendActivity(state, "A payment was confirmed", "Dashboard totals should now increase.");
+  appendActivity(state, `${member.name} was confirmed for ${contribution.title}`, "Dashboard totals updated from the same payment source.");
   saveState(state);
   return fakeRequest(payment, 360);
 }
@@ -52,11 +57,13 @@ export async function confirmPayment(paymentId, confirmedBy) {
 export async function rejectPayment(paymentId, confirmedBy, note) {
   const state = getState();
   const payment = state.payment_records.find((item) => Number(item.payment_id) === Number(paymentId));
+  const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
+  const member = state.users.find((item) => item.user_id === payment.user_id);
   payment.status = PAYMENT_STATUS.REJECTED;
   payment.confirmed_at = new Date().toISOString();
   payment.confirmed_by = confirmedBy;
   payment.rejection_note = note;
-  appendActivity(state, "A payment was rejected", note || "The treasurer asked for a clearer payment reference.");
+  appendActivity(state, `${member.name}'s ${contribution.title} claim was rejected`, note || "The treasurer asked for a clearer payment reference.");
   saveState(state);
   return fakeRequest(payment, 360);
 }

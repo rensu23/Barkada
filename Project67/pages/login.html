@@ -19,8 +19,8 @@
         <div class="stack">
           <p class="eyebrow">Welcome back</p>
           <h1>Pick up where your group left off.</h1>
-          <p class="muted">Demo accounts already included: <strong>mika@barkada.app</strong> or <strong>paolo@barkada.app</strong> with password <strong>demo1234</strong>.</p>
-          <div class="callout"><span>Tip</span><p class="helper-text">Choose a demo role so you can preview the Treasurer or Member dashboard right after login.</p></div>
+          <p class="muted">Demo accounts already included below. Each one uses the password <strong>Demo123!</strong> and loads a different seeded role experience.</p>
+          <div class="callout"><span>Tip</span><p class="helper-text">Use the hybrid account if you want to test switching between treasurer and member behavior by group.</p></div>
         </div>
       </aside>
       <section class="auth-card">
@@ -29,6 +29,10 @@
           <h1>Log in</h1>
           <p class="helper-text">Use your email and password to open your contribution dashboard.</p>
         </div>
+        <section class="space-top">
+          <p class="eyebrow">Quick demo access</p>
+          <div class="mobile-list" data-demo-accounts></div>
+        </section>
         <form class="stack space-top" data-login-form novalidate>
           <div class="field-group">
             <label for="login-email">Email</label>
@@ -45,13 +49,7 @@
           </div>
           <div class="field-grid">
             <label><input type="checkbox" name="remember_me"> Remember me on this device</label>
-            <div class="field-group">
-              <label for="role-view">Demo role</label>
-              <select id="role-view" name="role_view">
-                <option value="treasurer">Treasurer / Admin</option>
-                <option value="member">Member</option>
-              </select>
-            </div>
+            <p class="helper-text">If checked, the demo session stays in localStorage. If unchecked, it stays only in sessionStorage for the current browser tab.</p>
           </div>
           <button class="button button-block" type="submit">Log in</button>
           <p class="helper-text">Forgot your password? <a class="page-link" href="./forgot-password.html">Reset it here</a>.</p>

@@ -1,41 +1,57 @@
 # File Structure Guide
 
-## Frontend
+## Start here first
 
 - `index.html`
-  - landing page
+  - root landing page and recommended first page to open
+- `README.md`
+  - quick local-running notes
+- `docs/demo-accounts.md`
+  - demo credentials and what each account can test
+- `docs/demo-flow-guide.md`
+  - guided demo walkthrough
+
+## Frontend files beginners should edit first
+
 - `pages/`
-  - all public/auth pages and authenticated app pages
-- `css/`
-  - design tokens, layout, components, and page styling
-- `js/`
-  - modular frontend logic
+  - if you want to change page content or layout sections
+- `css/tokens.css`
+  - if you want to change colors, spacing, or shadows
+- `css/components.css`
+  - if you want to change shared cards, buttons, forms, and tables
 - `js/data/`
-  - starter mock data aligned to the SQL schema
+  - if you want to change seeded demo content
 - `js/services/`
-  - async service layer that is easy to replace later
+  - if you want to understand how data currently flows through the demo
+
+## Frontend files to be more careful with
+
+- `js/utils/storage.js`
+  - controls demo database persistence and session storage behavior
+- `js/utils/calculations.js`
+  - controls totals, summaries, and graph inputs
+- `js/main.js`
+  - initializes the whole frontend app
+- `js/navigation.js`
+  - controls shared nav and group context switching
+
+## Folder breakdown
+
+- `pages/`
+  - public pages and app pages
+- `css/`
+  - tokens, themes, layout, components, utilities, and page-specific styles
+- `js/data/`
+  - centralized seeded demo rows aligned with the SQL schema
+- `js/services/`
+  - Promise-based mock service layer that can later become real fetch calls
 - `js/utils/`
-  - small helpers, formatters, storage, and shared constants
-
-## Backend scaffold
-
-- `php/config/`
-  - setup files such as database config
-- `php/helpers/`
-  - reusable response, auth, and validation helpers
-- `php/auth/`
-  - login, register, logout, forgot, reset, and session stubs
-- `php/groups/`
-  - group list/detail/create/update/join/member stubs
-- `php/contributions/`
-  - contribution list/detail/create/update/recurring stubs
-- `php/payments/`
-  - mark-paid, confirm, reject, and history stubs
-- `php/users/`
-  - profile-related stubs
-- `php/qr/`
-  - QR and scan-related stubs
+  - helpers for storage, formatting, cookies, and summary calculations
+- `php/`
+  - backend stubs only, ready for future PHP + MySQL hookup
+- `docs/`
+  - handoff notes, demo notes, and testing notes
 
 ## Old starter files
 
-Some original top-level files existed before this redesign. The new structure centers on `index.html`, `pages/`, `css/`, and `js/` so beginners have one clear place to start.
+Top-level compatibility files such as `login.html`, `signup.html`, and `dashboard.html` now redirect to the newer files inside `pages/`. Keep using the `pages/` versions for real edits.
