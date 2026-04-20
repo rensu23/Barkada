@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contributions | Barkada</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem("barkada-theme")||"light";</script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+  <link rel="stylesheet" href="../css/pages.css">
+</head>
+<body class="app-shell" data-app-page="contributions">
+  <div class="app-layout">
+    <aside class="app-sidebar" data-sidebar></aside>
+    <div class="app-main">
+      <header class="app-topbar" data-topbar></header>
+      <nav class="mobile-bottom-nav" data-bottom-nav></nav>
+      <main class="page-content">
+        <section class="page-header page-section">
+          <div class="page-header-copy">
+            <p class="eyebrow">Contributions</p>
+            <h1>One-time and recurring dues</h1>
+            <p class="helper-text">Create contributions for a group, then use payment records to track member status.</p>
+          </div>
+        </section>
+        <section class="grid-2 page-section">
+          <form class="card stack" data-contribution-form>
+            <h2>Create contribution</h2>
+            <div class="form-grid">
+              <div class="field-group"><label>group_id<select name="group_id"><option value="101">101 - Boracay Summer Fund</option><option value="102">102 - CS Batch Hoodies</option><option value="103">103 - Org Outreach Kit</option></select></label></div>
+              <div class="field-group"><label>title<input name="title" type="text" placeholder="Example: Final Venue Payment"></label></div>
+              <div class="field-group"><label>amount<input name="amount" type="number" placeholder="0"></label></div>
+              <div class="field-group"><label>type<select name="type"><option>One-time</option><option>Recurring</option></select></label></div>
+              <div class="field-group"><label>frequency<select name="frequency"><option>One-time</option><option>Weekly</option><option>Monthly</option><option>Custom</option></select></label></div>
+              <div class="field-group"><label>Due date<input name="due_date" type="date"></label></div>
+            </div>
+            <div class="field-group"><label>Notes<textarea name="notes" rows="4" placeholder="Reference or reminder for members"></textarea></label></div>
+            <button class="button" type="submit">Add contribution</button>
+          </form>
+          <aside class="stack">
+            <article class="card">
+              <h2>Member actions</h2>
+              <p class="helper-text">Unpaid or rejected items can be marked as paid from here in the demo flow.</p>
+              <div class="mobile-list space-top" data-member-actions></div>
+            </article>
+          </aside>
+        </section>
+        <section class="grid-3 page-section" data-contributions-list></section>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members | Barkada</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem("barkada-theme")||"light";</script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+  <link rel="stylesheet" href="../css/pages.css">
+</head>
+<body class="app-shell" data-app-page="members">
+  <div class="app-layout">
+    <aside class="app-sidebar" data-sidebar></aside>
+    <div class="app-main">
+      <header class="app-topbar" data-topbar></header>
+      <nav class="mobile-bottom-nav" data-bottom-nav></nav>
+      <main class="page-content">
+        <section class="page-header page-section">
+          <div class="page-header-copy">
+            <p class="eyebrow">Members</p>
+            <h1>Member list and quick filters</h1>
+            <p class="helper-text">This page uses <code>group_members</code> plus <code>users</code> data and is ready for richer backend summaries later.</p>
+          </div>
+        </section>
+        <section class="card page-section">
+          <div class="filter-bar">
+            <div class="field-group">
+              <label for="members-search">Search members</label>
+              <input id="members-search" type="search" data-members-search placeholder="Search by member name">
+            </div>
+            <div class="field-group">
+              <label>Status filter</label>
+              <select><option>All statuses</option><option>Paid</option><option>Pending</option><option>Not Paid</option></select>
+            </div>
+            <div class="field-group">
+              <label>Contribution filter</label>
+              <select><option>All contributions</option><option>Van Reservation</option><option>Room Balance</option></select>
+            </div>
+          </div>
+        </section>
+        <section class="mobile-list page-section" data-members-list></section>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="../js/main.js"></script>
+</body>
+</html>

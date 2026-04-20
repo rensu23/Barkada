@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barkada | Group Contribution Tracker</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem("barkada-theme")||"light";</script>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/utilities.css">
+  <link rel="stylesheet" href="./css/pages.css">
+</head>
+<body>
+  <div class="public-shell">
+    <header data-public-header></header>
+
+    <main class="container">
+      <!-- Landing hero -->
+      <section class="hero-grid page-section">
+        <div class="landing-hero-copy">
+          <p class="eyebrow">Contribution tracking for real groups</p>
+          <h1>See who still owes, who already marked paid, and what still needs confirmation.</h1>
+          <p class="muted">Barkada keeps group contribution records easy to follow for classmates, barkadas, student orgs, and small teams. No online payment processing, just clean tracking and accountability.</p>
+          <div class="cta-row" data-quick-links></div>
+          <div class="metric-ribbon">
+            <div><strong>Clear status flow</strong><p class="helper-text">Not Paid, Pending, Paid, and Rejected stay visible to everyone involved.</p></div>
+            <div><strong>Recurring dues support</strong><p class="helper-text">Weekly and monthly cycles are ready in the UI and easy to hook to PHP later.</p></div>
+            <div><strong>Treasure-first tools</strong><p class="helper-text">Confirm claims, share join codes, and keep summaries organized.</p></div>
+          </div>
+        </div>
+        <div class="hero-panel glass-card">
+          <div class="stack">
+            <div class="spotlight-card">
+              <p class="eyebrow">Today’s overview</p>
+              <h3>Collection progress without the clutter</h3>
+              <p class="helper-text">A calm dashboard for targets, pending confirmations, and group progress.</p>
+            </div>
+            <div class="grid-2">
+              <article class="stat-card">
+                <span class="muted">Collected</span>
+                <strong>PHP 11,400</strong>
+                <span class="helper-text">Confirmed contributions across active groups.</span>
+              </article>
+              <article class="stat-card">
+                <span class="muted">Pending review</span>
+                <strong>3 claims</strong>
+                <span class="helper-text">Treasurers can confirm or reject with notes.</span>
+              </article>
+            </div>
+            <article class="card">
+              <div class="page-header">
+                <div class="page-header-copy">
+                  <p class="eyebrow">Join quickly</p>
+                  <h3>Invite link or QR</h3>
+                </div>
+                <a class="button-ghost" href="./pages/join-group.html">Open flow</a>
+              </div>
+              <p class="helper-text">Members can join by link, QR, or manual code entry when cameras are unavailable.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section">
+        <div class="page-header">
+          <div class="page-header-copy">
+            <p class="eyebrow">What the product covers</p>
+            <h2>Built for real contribution tracking, not payment processing.</h2>
+            <p class="helper-text">The frontend focuses on visibility, trust, and simple group coordination. It avoids pricing pages, wallets, checkouts, and upgrade prompts.</p>
+          </div>
+        </div>
+        <div class="grid-3">
+          <article class="card"><h3>Treasurer dashboard</h3><p class="helper-text">Track total target, collected, pending confirmations, and activity in one place.</p></article>
+          <article class="card"><h3>Member journey</h3><p class="helper-text">Review current dues, mark payment as done, and check history without confusing terms.</p></article>
+          <article class="card"><h3>Backend-ready structure</h3><p class="helper-text">Mock async services mirror your SQL schema so PHP and MySQL can plug in later.</p></article>
+        </div>
+      </section>
+
+      <section class="two-column page-section">
+        <article class="chart-card">
+          <p class="eyebrow">Group transparency</p>
+          <h3>Everyone can understand the same status language.</h3>
+          <div class="mini-bars space-top">
+            <div><strong>Paid</strong><span style="--bar-value:72%"></span></div>
+            <div><strong>Pending</strong><span style="--bar-value:22%"></span></div>
+            <div><strong>Not Paid</strong><span style="--bar-value:46%"></span></div>
+          </div>
+        </article>
+        <article class="chart-card">
+          <p class="eyebrow">Beginner-friendly codebase</p>
+          <h3>Clear files, comments, and modular JavaScript.</h3>
+          <div class="timeline space-top">
+            <div class="timeline-item"><div><strong>Mock services first</strong><p class="helper-text">Promise-based services can later point to PHP endpoints.</p></div></div>
+            <div class="timeline-item"><div><strong>Schema-aligned naming</strong><p class="helper-text">Core fields like <code>group_id</code> and <code>payment_id</code> stay familiar.</p></div></div>
+            <div class="timeline-item"><div><strong>Shared UI system</strong><p class="helper-text">Tokens, layout styles, and components keep pages consistent.</p></div></div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

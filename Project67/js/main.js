@@ -1,31 +1,29 @@
-const form = document.getElementById("loginForm");
+import { initAuthPages } from "./auth.js";
+import { initDashboardPage } from "./dashboard.js";
+import { initGroupsPage } from "./groups.js";
+import { initContributionsPage } from "./contributions.js";
+import { initPaymentsPage } from "./payments.js";
+import { initQrPage } from "./qr.js";
+import { initProfilePage } from "./profile.js";
+import { initSettingsPage } from "./settings.js";
+import { bindThemeButtons, applySavedTheme } from "./theme.js";
+import { bindOfflineBanner } from "./ui.js";
+import { initAppNavigation, initLandingLinks, initPublicNavigation, initRoleSwitcher } from "./navigation.js";
 
-form.addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const email = document.getElementById("email");
-  const password = document.getElementById("password");
-
-  const emailError = document.getElementById("emailError");
-  const passwordError = document.getElementById("passwordError");
-
-  emailError.textContent = "";
-  passwordError.textContent = "";
-
-  let valid = true;
-
-  if (email.value.trim() === "") {
-    emailError.textContent = "Email required";
-    valid = false;
-  }
-
-  if (password.value.trim() === "") {
-    passwordError.textContent = "Password required";
-    valid = false;
-  }
-
-  if (valid) {
-    window.location.href = "dashboard.html";
-  }
+document.addEventListener("DOMContentLoaded", async () => {
+  applySavedTheme();
+  initPublicNavigation();
+  initAppNavigation();
+  initLandingLinks();
+  initRoleSwitcher();
+  bindThemeButtons();
+  bindOfflineBanner();
+  initAuthPages();
+  await initDashboardPage();
+  await initGroupsPage();
+  await initContributionsPage();
+  await initPaymentsPage();
+  await initQrPage();
+  await initProfilePage();
+  initSettingsPage();
 });
-

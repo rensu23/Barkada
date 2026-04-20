@@ -1,37 +1,17 @@
-:root {
-  --bg: #39ff14;
-  --box: #000000;
-  --red: #ff4d4d;
-}
+/*
+  Legacy compatibility file.
+  The redesigned project now uses:
+  - base.css
+  - layout.css
+  - components.css
+  - utilities.css
+  - pages.css
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
+  Keep this file only if an older HTML file still points to it.
+*/
 
-body {
-  background: var(--bg);
-}
-
-.wrapper {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-}
-
-.logo-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.logo {
-  width: 200px;
-  height: 200px;
-  object-fit: contain;
-}
-
+@import url("./base.css");
+@import url("./layout.css");
+@import url("./components.css");
+@import url("./utilities.css");
+@import url("./pages.css");

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Group | Barkada</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem("barkada-theme")||"light";</script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+  <link rel="stylesheet" href="../css/pages.css">
+</head>
+<body data-page="join-group" data-app-page="join-group">
+  <div class="public-shell">
+    <header data-public-header></header>
+    <main class="container two-column">
+      <section class="card">
+        <div class="stack">
+          <p class="eyebrow">Quick join</p>
+          <h1>Join with a link, code, or QR.</h1>
+          <p class="helper-text">This page includes the full join entry UI. Actual validation can later move to PHP once invite rules are finalized.</p>
+        </div>
+        <form class="stack space-top" data-join-form>
+          <div class="field-group">
+            <label for="join-code">Join code</label>
+            <input id="join-code" type="text" name="code" placeholder="Example: BORA101">
+          </div>
+          <button class="button button-block" type="submit">Join group</button>
+        </form>
+        <article class="callout hidden" data-join-success><span>Success</span><strong>You joined a group.</strong></article>
+        <article class="callout hidden" data-join-invalid><span>Check</span><strong>That code is invalid or expired.</strong></article>
+      </section>
+      <section class="qr-card">
+        <div class="page-header">
+          <div class="page-header-copy">
+            <p class="eyebrow">Scan option</p>
+            <h2>QR placeholder</h2>
+            <p class="helper-text">A real scanner library can be connected here later. For now, the UI shows the expected layout and fallback flow.</p>
+          </div>
+          <a class="button-ghost" href="./scan-qr.html">Open scanner page</a>
+        </div>
+        <div class="qr-placeholder space-top"></div>
+        <form class="stack space-top" data-code-form>
+          <div class="field-group">
+            <label for="manual-code">Manual fallback entry</label>
+            <input id="manual-code" name="code" type="text" placeholder="Paste or type a code">
+          </div>
+          <button class="button-secondary button-block" type="submit">Try code</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="../js/main.js"></script>
+</body>
+</html>

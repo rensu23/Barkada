@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | Barkada</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem("barkada-theme")||"light";</script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+  <link rel="stylesheet" href="../css/pages.css">
+</head>
+<body class="app-shell" data-app-page="settings">
+  <div class="app-layout">
+    <aside class="app-sidebar" data-sidebar></aside>
+    <div class="app-main">
+      <header class="app-topbar" data-topbar></header>
+      <nav class="mobile-bottom-nav" data-bottom-nav></nav>
+      <main class="page-content">
+        <section class="grid-2 page-section">
+          <article class="card stack">
+            <p class="eyebrow">Preferences</p>
+            <h1>Settings</h1>
+            <div class="field-group">
+              <label for="role-switch">Demo role preview</label>
+              <select id="role-switch" data-role-switch>
+                <option value="treasurer">Treasurer / Admin</option>
+                <option value="member">Member</option>
+              </select>
+            </div>
+            <button class="button-secondary" type="button" data-theme-toggle><span data-theme-label>Dark mode</span></button>
+            <div class="accordion">
+              <button type="button">Notification preferences</button>
+              <div class="accordion-content">
+                <p class="helper-text">UI shell only. Real notification storage can be added later.</p>
+              </div>
+            </div>
+          </article>
+          <article class="card stack">
+            <h2>Account and demo tools</h2>
+            <div class="detail-list">
+              <div class="summary-row"><span>Security section</span><strong>Password reset already scaffolded</strong></div>
+              <div class="summary-row"><span>Unsaved changes warning</span><strong>Recommended for future form-heavy pages</strong></div>
+            </div>
+            <button class="button-secondary" type="button" data-reset-demo>Reset demo data</button>
+            <button class="button-danger" type="button" data-logout>Log out</button>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="../js/main.js"></script>
+</body>
+</html>
