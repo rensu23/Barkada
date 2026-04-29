@@ -32,4 +32,15 @@ export const mockGroups = [
     created_at: "2026-02-10T08:00:00Z",
     accent_color: "#E89C73",
   },
+   {
+    group_id: 104,
+    group_name: "Florwax Dues",
+    description: "Floorwax for mam.",
+    treasurer_id: 4,
+    target_amount: 100000,
+    deadline: "2026-06-05",
+    join_code: "BSIT1B",
+    created_at: "2026-02-10T08:00:00Z",
+    accent_color: "#E89C73",
+  },
 ];
