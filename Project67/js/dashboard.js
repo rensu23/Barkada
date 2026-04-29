@@ -202,9 +202,9 @@ function bindDonutChart(segments) {
 export async function initDashboardPage() {
   if (document.body.dataset.appPage !== "dashboard") return;
 
-  const session = await getCurrentSession();
+  const session = await getCurrentSession() || { user_id: null, active_group_id: null, role: "member" };
   const state = getState();
-  const role = getActiveRoleKey(state, session);
+  const role = session.role || getActiveRoleKey(state, session);
   const metricsState = buildDashboardMetrics(state, session.user_id, session.active_group_id);
   const pending = role === "treasurer" ? await getPendingPayments(session.active_group_id) : [];
   const metrics = document.querySelector("[data-dashboard-stats]");
@@ -263,7 +263,8 @@ export async function initDashboardPage() {
     ? groupsToShow.map((group) => activeGroupTemplate(group, metricsState, group.member_role === "Treasurer" ? "treasurer" : "member")).join("")
     : `<article class="empty-card"><h3>No active group yet</h3><p class="helper-text">Join with a group code or create a group to start tracking contributions.</p></article>`;
 
-  activity.innerHTML = getUserVisibleActivity(state, session.user_id, session.active_group_id)
+  const recentActivity = getUserVisibleActivity(state, session.user_id, session.active_group_id);
+  activity.innerHTML = recentActivity.length ? recentActivity
     .slice(0, 5)
     .map(
       (item) => `
@@ -276,5 +277,5 @@ export async function initDashboardPage() {
       </article>
     `,
     )
-    .join("");
+    .join("") : `<article class="empty-card"><h3>No activity loaded yet</h3><p class="helper-text">PHP TODO: Fetch recent payment_records joined to contributions/groups after session authorization.</p></article>`;
 }

@@ -22,30 +22,34 @@
           <div class="page-header-copy">
             <p class="eyebrow">Group detail</p>
             <h1 data-group-title>Loading group...</h1>
-            <p class="helper-text" data-group-description>Pulling mock details from the local demo state.</p>
+            <p class="helper-text" data-group-description>PHP TODO: Fetch this group only after verifying membership in group_members.</p>
           </div>
           <div class="header-actions">
-            <a class="button-secondary" href="./edit-group.html?group_id=101" data-group-edit-link>Edit group</a>
+            <a class="button-secondary" href="./edit-group.html" data-group-edit-link>Edit group</a>
             <button class="button" type="button" data-copy-group-code>Copy group code</button>
           </div>
         </section>
         <section class="grid-2 page-section">
           <article class="card">
             <h2>Group summary</h2>
+            <!-- PHP TODO: Query groups by group_id; escape output with htmlspecialchars. -->
             <div class="detail-list space-top" data-group-meta></div>
           </article>
           <article class="card" data-group-tools>
             <h2>Group access</h2>
+            <!-- PHP TODO: Only treasurer role from group_members may copy groups.join_code or edit group fields. -->
             <div class="detail-list space-top"></div>
           </article>
         </section>
         <section class="grid-2 page-section">
           <article class="table-card">
             <h2>Contributions</h2>
+            <!-- PHP TODO: Fetch contributions where contributions.group_id = current group_id, with SQL-backed status aggregates from payment_records. -->
             <div class="surface-list space-top" data-group-contributions></div>
           </article>
           <article class="table-card">
             <h2>Members</h2>
+            <!-- PHP TODO: Fetch members through group_members joined to users; hide management actions for non-treasurers. -->
             <div class="surface-list space-top" data-group-members></div>
           </article>
         </section>

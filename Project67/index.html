@@ -39,13 +39,13 @@
             <div class="grid-2">
               <article class="stat-card">
                 <span class="muted">Collected</span>
-                <strong>PHP 11,400</strong>
-                <span class="helper-text">Confirmed contributions across active groups.</span>
+              <strong>PHP/MySQL</strong>
+              <span class="helper-text">Confirmed totals should come from payment_records joined to contributions.</span>
               </article>
               <article class="stat-card">
                 <span class="muted">Pending review</span>
-                <strong>3 claims</strong>
-                <span class="helper-text">Treasurers can confirm or reject with notes.</span>
+              <strong>SQL rows</strong>
+              <span class="helper-text">Treasurers confirm or reject pending payment_records.</span>
               </article>
             </div>
             <article class="card">
@@ -56,7 +56,7 @@
                 </div>
                 <a class="button-ghost" href="./pages/join-group.html">Open flow</a>
               </div>
-              <p class="helper-text">Members join with a short code like OUT101, which keeps the access flow simple and database-ready.</p>
+              <p class="helper-text">Members join with groups.join_code after PHP verifies session, code validity, and duplicate membership.</p>
             </article>
           </div>
         </div>
@@ -73,7 +73,7 @@
         <div class="grid-3">
           <article class="card"><h3>Treasurer dashboard</h3><p class="helper-text">Track total target, collected, pending confirmations, and activity in one place.</p></article>
           <article class="card"><h3>Member journey</h3><p class="helper-text">Review current dues, mark payment as done, and check history without confusing terms.</p></article>
-          <article class="card"><h3>Backend-ready structure</h3><p class="helper-text">Mock async services mirror your SQL schema so PHP and MySQL can plug in later.</p></article>
+          <article class="card"><h3>Backend-ready structure</h3><p class="helper-text">Frontend adapters now wait for PHP endpoints backed by the existing SQL schema.</p></article>
         </div>
       </section>
 
@@ -91,7 +91,7 @@
           <p class="eyebrow">Beginner-friendly codebase</p>
           <h3>Clear files, comments, and modular JavaScript.</h3>
           <div class="timeline space-top">
-            <div class="timeline-item"><div><strong>Mock services first</strong><p class="helper-text">Promise-based services can later point to PHP endpoints.</p></div></div>
+            <div class="timeline-item"><div><strong>PHP endpoints first</strong><p class="helper-text">Service adapters point to auth, groups, contributions, payments, and users endpoints.</p></div></div>
             <div class="timeline-item"><div><strong>Schema-aligned naming</strong><p class="helper-text">Core fields like <code>group_id</code> and <code>payment_id</code> stay familiar.</p></div></div>
             <div class="timeline-item"><div><strong>Shared UI system</strong><p class="helper-text">Tokens, layout styles, and components keep pages consistent.</p></div></div>
           </div>

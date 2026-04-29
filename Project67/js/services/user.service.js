@@ -1,21 +1,17 @@
-import { fakeRequest } from "./api.service.js";
-import { getState, saveState } from "../utils/storage.js";
+import { backendNotReady } from "./api.service.js";
 
 export async function getUserProfile(userId) {
-  const state = getState();
-  const user = state.users.find((item) => Number(item.user_id) === Number(userId));
-  return fakeRequest(user, 180);
+  // PHP TODO: GET php/users/profile.php for the current session user.
+  // Do not return users.password.
+  return null;
 }
 
 export async function updateUserProfile(userId, payload) {
-  const state = getState();
-  const user = state.users.find((item) => Number(item.user_id) === Number(userId));
-  Object.assign(user, payload);
-  saveState(state);
-  return fakeRequest(user, 320);
+  // PHP TODO: POST to php/users/update-profile.php with CSRF protection.
+  throw backendNotReady("php/users/update-profile.php");
 }
 
 export async function getUsers() {
-  const state = getState();
-  return fakeRequest(state.users, 180);
+  // Avoid listing all users unless an authorized member-management endpoint needs it.
+  return [];
 }

@@ -22,17 +22,17 @@
           <div class="page-header-copy">
             <p class="eyebrow">Edit group</p>
             <h1>Update group details</h1>
-            <p class="helper-text">This form loads one sample group and updates the local demo state so changes carry across pages.</p>
+            <p class="helper-text">PHP TODO: Load the requested group by group_id only after checking group_members.role = Treasurer.</p>
           </div>
         </section>
         <section class="grid-2 page-section">
-          <form class="card stack" data-group-form>
+          <!-- PHP TODO: Submit to php/groups/update.php with CSRF token. Server must authorize treasurer role and update only groups table fields. -->
+          <form class="card stack" data-group-form action="../php/groups/update.php" method="post">
             <div class="form-grid">
               <div class="field-group"><label>group_name<input name="group_name" type="text"></label></div>
               <div class="field-group"><label>join_code<input name="join_code" type="text"></label></div>
               <div class="field-group"><label>target_amount<input name="target_amount" type="number"></label></div>
               <div class="field-group"><label>deadline<input name="deadline" type="date"></label></div>
-              <div class="field-group"><label>Accent color<input name="accent_color" type="color"></label></div>
             </div>
             <div class="field-group"><label>description<textarea name="description" rows="5"></textarea></label></div>
             <button class="button" type="submit">Save changes</button>
@@ -42,7 +42,7 @@
               <h2>Admin reminders</h2>
               <div class="detail-list space-top">
                 <div class="summary-row"><span>Delete flow</span><strong>Use a confirmation modal before removing any group later.</strong></div>
-                <div class="summary-row"><span>Join code changes</span><strong>Notify members if your backend rotates codes.</strong></div>
+                <div class="summary-row"><span>Join code changes</span><strong>Update groups.join_code and handle invalid/rotated-code errors.</strong></div>
               </div>
             </article>
           </aside>

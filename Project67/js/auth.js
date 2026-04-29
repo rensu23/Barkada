@@ -1,5 +1,4 @@
 import { loginUser, registerUser, requestPasswordReset, resetPassword } from "./services/auth.service.js";
-import { DEMO_ACCOUNTS } from "./utils/constants.js";
 import { getSession } from "./utils/storage.js";
 import { hasStrongEnoughPassword, isRequired, isValidEmail, passwordsMatch } from "./validators.js";
 import { showToast } from "./ui.js";
@@ -31,15 +30,9 @@ export function initRouteGuards() {
   const publicPage = document.body.dataset.page;
   const session = getSession();
 
-  if (appPage && !["join-group"].includes(appPage) && !session) {
-    window.location.href = "../pages/login.html?redirect=" + encodeURIComponent(window.location.pathname);
-    return false;
-  }
-
-  if (session && ["login", "signup"].includes(publicPage || "")) {
-    window.location.href = "../pages/dashboard.html";
-    return false;
-  }
+  // PHP TODO: Once PHP sessions are live, authenticated pages should be guarded
+  // server-side before HTML renders. This static cleanup pass leaves pages
+  // navigable so empty states and integration notes are visible without client-side auth.
 
   return true;
 }
@@ -47,28 +40,9 @@ export function initRouteGuards() {
 export function initAuthPages() {
   bindPasswordToggles();
   const page = document.body.dataset.page;
-  const demoWrap = document.querySelector("[data-demo-accounts]");
-
-  if (demoWrap) {
-    demoWrap.innerHTML = DEMO_ACCOUNTS.map((account) => `
-      <article class="mobile-list-item">
-        <strong>${account.label}</strong>
-        <p class="helper-text">${account.description}</p>
-        <button class="button-secondary button-block space-top" type="button" data-demo-fill="${account.email}">Use ${account.role_label}</button>
-      </article>
-    `).join("");
-  }
 
   if (page === "login") {
     const form = document.querySelector("[data-login-form]");
-    document.querySelectorAll("[data-demo-fill]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const account = DEMO_ACCOUNTS.find((item) => item.email === button.dataset.demoFill);
-        form.email.value = account.email;
-        form.password.value = account.password;
-        form.remember_me.checked = true;
-      });
-    });
     form?.addEventListener("submit", async (event) => {
       event.preventDefault();
       clearErrors(form);
@@ -90,7 +64,7 @@ export function initAuthPages() {
       button.textContent = "Logging in...";
       try {
         await loginUser(payload);
-        showToast("Welcome back. Redirecting to your dashboard.");
+        showToast("Logged in. Redirecting to your dashboard.");
         window.setTimeout(() => {
           const redirect = new URLSearchParams(window.location.search).get("redirect");
           window.location.href = redirect || "../pages/dashboard.html";
@@ -135,7 +109,7 @@ export function initAuthPages() {
       button.textContent = "Creating account...";
       try {
         await registerUser(payload);
-        showToast("Account created. You can now log in with your new demo account.");
+        showToast("Account created. You can now log in.");
         window.setTimeout(() => {
           window.location.href = "../pages/login.html";
         }, 420);
@@ -158,9 +132,14 @@ export function initAuthPages() {
         showFieldError(form, "email", "Enter a valid email address.");
         return;
       }
-      const result = await requestPasswordReset(payload);
-      document.querySelector("[data-auth-feedback]").textContent = result.message;
-      document.querySelector("[data-auth-feedback]").className = "success-text";
+      try {
+        const result = await requestPasswordReset(payload);
+        document.querySelector("[data-auth-feedback]").textContent = result.message || "Reset instructions sent.";
+        document.querySelector("[data-auth-feedback]").className = "success-text";
+      } catch (error) {
+        document.querySelector("[data-auth-feedback]").textContent = error.message;
+        document.querySelector("[data-auth-feedback]").className = "error-text";
+      }
     });
   }
 
@@ -185,11 +164,15 @@ export function initAuthPages() {
       }
       if (!valid) return;
 
-      await resetPassword(payload);
-      showToast("Password updated in demo mode.");
-      window.setTimeout(() => {
-        window.location.href = "../pages/login.html";
-      }, 380);
+      try {
+        await resetPassword(payload);
+        showToast("Password updated.");
+        window.setTimeout(() => {
+          window.location.href = "../pages/login.html";
+        }, 380);
+      } catch (error) {
+        showFieldError(form, "password", error.message);
+      }
     });
   }
 }

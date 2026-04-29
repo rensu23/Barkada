@@ -1,8 +1,6 @@
 import { APP_PAGES, NAV_ITEMS, QUICK_LINKS } from "./utils/constants.js";
 import { setActiveGroup } from "./services/auth.service.js";
-import { getState, getSession } from "./utils/storage.js";
-import { getEffectiveRole, getGroupsForUserFromState, resolveActiveGroupId } from "./utils/calculations.js";
-import { getActiveRoleKey } from "./utils/roles.js";
+import { getSession } from "./utils/storage.js";
 
 const LANE_ORDER = ["Overview", "Groups", "Contributions", "Payments", "Members", "Reports"];
 const ICONS = {
@@ -71,6 +69,7 @@ function publicHeaderTemplate() {
 function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
   const links = NAV_ITEMS[role] || NAV_ITEMS.member;
   const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
+  const displayName = session?.name || "Backend user";
   return `
     <a class="brand" href="../pages/dashboard.html">
       <span class="brand-mark">B</span>
@@ -78,8 +77,8 @@ function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
     </a>
     <div class="spotlight-card">
       <p class="eyebrow">${role === "treasurer" ? "Treasurer workspace" : "Member workspace"}</p>
-      <h3>${session.name}</h3>
-      <p class="helper-text">${activeGroup ? `${activeGroup.group_name} - ${activeGroup.member_role}` : "No active group selected yet."}</p>
+      <h3>${displayName}</h3>
+      <p class="helper-text">${activeGroup ? `${activeGroup.group_name} - ${activeGroup.member_role}` : "PHP session and groups not loaded yet."}</p>
     </div>
     <nav class="surface-list" aria-label="Main navigation">
       ${groupedLinks(links)
@@ -98,6 +97,7 @@ function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
 }
 
 function appTopbarTemplate(currentPage, session, groups, activeGroupId, role) {
+  const displayName = session?.name || "Backend user";
   const options = groups
     .map(
       (group) => `<option value="${group.group_id}" ${Number(group.group_id) === Number(activeGroupId) ? "selected" : ""}>${group.group_name} - ${group.member_role}</option>`,
@@ -117,9 +117,9 @@ function appTopbarTemplate(currentPage, session, groups, activeGroupId, role) {
         ${ICONS.Moon}
         <span class="sr-only" data-theme-label>Dark mode</span>
       </button>
-      <a class="button-secondary" href="../pages/profile.html" aria-label="Open profile for ${session.name}">
+      <a class="button-secondary" href="../pages/profile.html" aria-label="Open profile for ${displayName}">
         <span class="nav-icon">${ICONS.User}</span>
-        <span class="profile-name">${session.name.split(" ")[0]}</span>
+        <span class="profile-name">${displayName.split(" ")[0]}</span>
       </a>
     </div>
   `;
@@ -152,13 +152,14 @@ function bottomNavTemplate(currentPage) {
 function mobileMenuTemplate(role, currentPage, session, groups, activeGroupId) {
   const links = NAV_ITEMS[role] || NAV_ITEMS.member;
   const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
+  const displayName = session?.name || "Backend user";
   return `
     <div class="mobile-menu-backdrop" data-mobile-menu aria-hidden="true">
       <aside class="mobile-menu-panel" aria-label="Mobile menu">
         <div class="page-header">
           <div class="page-header-copy">
             <p class="eyebrow">${role === "treasurer" ? "Treasurer menu" : "Member menu"}</p>
-            <h2>${session.name}</h2>
+            <h2>${displayName}</h2>
             <p class="helper-text">${activeGroup ? `${activeGroup.group_name} - ${activeGroup.member_role}` : "Choose or join a group to begin."}</p>
           </div>
           <button class="button-ghost" type="button" data-mobile-menu-close aria-label="Close menu">Close</button>
@@ -195,11 +196,9 @@ export function initAppNavigation() {
   if (!shell) return;
 
   const session = getSession();
-  if (!session) return;
-  const state = getState();
-  const groups = getGroupsForUserFromState(state, session.user_id);
-  const activeGroupId = resolveActiveGroupId(groups, session);
-  const role = getActiveRoleKey(state, { ...session, active_group_id: activeGroupId }) || getEffectiveRole(groups);
+  const groups = session?.groups || [];
+  const activeGroupId = session?.active_group_id || groups[0]?.group_id || null;
+  const role = session?.role || session?.effective_role || "member";
   const sidebar = document.querySelector("[data-sidebar]");
   const topbar = document.querySelector("[data-topbar]");
   const bottomNav = document.querySelector("[data-bottom-nav]");
@@ -244,7 +243,7 @@ export function initRoleSwitcher() {
   const field = document.querySelector("[data-role-switch]");
   if (!field) return;
   const session = getSession();
-  field.value = session?.effective_role || "member";
+  field.value = session?.role || session?.effective_role || "member";
   field.disabled = true;
 }
 

@@ -1,7 +1,7 @@
 import { getGroupsForUserFromState } from "./calculations.js";
 
 /*
-  Frontend role helper for demo-only UX hiding.
+  Frontend role helper for display-only UX hiding.
   PHP must repeat these checks server-side with group_members.role before any
   create, confirm, reject, edit, or member-management operation is allowed.
 */

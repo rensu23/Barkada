@@ -1,8 +1,5 @@
 export const STORAGE_KEYS = {
   theme: "barkada-theme",
-  session: "barkada-session",
-  database: "barkada-demo-database",
-  session_type: "barkada-session-type",
 };
 
 export const PAYMENT_STATUS = {
@@ -57,28 +54,4 @@ export const QUICK_LINKS = [
   { label: "Login", href: "./pages/login.html" },
   { label: "Sign Up", href: "./pages/signup.html" },
   { label: "Join Group", href: "./pages/join-group.html" },
-];
-
-export const DEMO_ACCOUNTS = [
-  {
-    email: "treasurer@demo.com",
-    password: "Demo123!",
-    label: "Treasurer Demo",
-    role_label: "Treasurer demo",
-    description: "Best for testing pending confirmations, group management, and summary dashboards.",
-  },
-  {
-    email: "member@demo.com",
-    password: "Demo123!",
-    label: "Member Demo",
-    role_label: "Member demo",
-    description: "Best for testing dues, payment history, mark-as-paid, and group code access.",
-  },
-  {
-    email: "hybrid@demo.com",
-    password: "Demo123!",
-    label: "Hybrid Demo",
-    role_label: "Treasurer + Member",
-    description: "Best for testing mixed permissions across different groups and group-context switching.",
-  },
 ];

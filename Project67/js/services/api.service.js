@@ -1,10 +1,23 @@
-import { wait } from "../utils/helpers.js";
-
-/* 
-  This file simulates network requests so the UI feels real now,
-  and can later be swapped with fetch() calls to PHP endpoints.
+/*
+  Thin API adapter for the PHP/MySQL migration.
+  Keep this file free of sample records and local persistence.
 */
-export async function fakeRequest(payload, delay = 320) {
-  await wait(delay);
-  return payload;
+
+export function backendNotReady(endpoint) {
+  return new Error(`${endpoint} is ready to connect, but the PHP/MySQL implementation is not wired yet.`);
+}
+
+export async function fetchJson(endpoint, options = {}) {
+  // PHP TODO: Use this wrapper once endpoints return JSON with consistent errors.
+  const response = await fetch(endpoint, {
+    credentials: "same-origin",
+    headers: { Accept: "application/json", ...(options.headers || {}) },
+    ...options,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with HTTP ${response.status}.`);
+  }
+
+  return response.json();
 }

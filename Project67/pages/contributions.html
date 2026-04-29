@@ -22,9 +22,10 @@
           <div class="page-header-copy">
             <p class="eyebrow">Contributions</p>
             <h1>One-time and recurring dues</h1>
-            <p class="helper-text">Review dues, mark your own payment as done, or confirm member claims directly on the matching row.</p>
+            <p class="helper-text">PHP TODO: Load contributions and payment_records by active group membership. Members see own status; treasurers see group-wide status.</p>
           </div>
         </section>
+        <!-- PHP TODO: Convert these controls to GET query parameters for SQL-backed filtering/sorting by due date if added, status, amount, group, member, and type/frequency. -->
         <section class="card toolbar-card page-section">
           <div class="filter-bar">
             <div class="field-group">
@@ -57,21 +58,23 @@
         <section class="page-section">
           <details class="disclosure" data-contribution-create-panel>
             <summary>Create contribution</summary>
-            <form class="stack" data-contribution-form>
+            <!-- PHP TODO: Submit to php/contributions/create.php. Validate group_id, title, amount, type, frequency; require treasurer role for the group. -->
+            <form class="stack" data-contribution-form action="../php/contributions/create.php" method="post">
             <h2>Create contribution</h2>
             <div class="form-grid">
-              <div class="field-group"><label>group_id<select name="group_id"><option value="101">101 - Boracay Summer Fund</option><option value="102">102 - CS Batch Hoodies</option><option value="103">103 - Org Outreach Kit</option></select></label></div>
+              <div class="field-group"><label>group_id<select name="group_id"></select></label></div>
               <div class="field-group"><label>title<input name="title" type="text" placeholder="Example: Final Venue Payment"></label></div>
               <div class="field-group"><label>amount<input name="amount" type="number" placeholder="0"></label></div>
               <div class="field-group"><label>type<select name="type"><option>One-time</option><option>Recurring</option></select></label></div>
               <div class="field-group"><label>frequency<select name="frequency"><option>One-time</option><option>Weekly</option><option>Monthly</option><option>Custom</option></select></label></div>
-              <div class="field-group"><label>Due date<input name="due_date" type="date"></label></div>
+              <div class="field-group"><label>Due date<input name="due_date" type="date" disabled></label><p class="helper-text">Schema note: barkada_db.sql currently has no contributions.due_date column.</p></div>
             </div>
-            <div class="field-group"><label>Notes<textarea name="notes" rows="4" placeholder="Reference or reminder for members"></textarea></label></div>
+            <div class="field-group"><label>Notes<textarea name="notes" rows="4" placeholder="Reference or reminder for members" disabled></textarea></label><p class="helper-text">Schema note: store notes only after an intentional schema extension.</p></div>
             <button class="button" type="submit">Add contribution</button>
             </form>
           </details>
         </section>
+        <!-- PHP TODO: Mark-as-paid posts to php/payments/mark-paid.php; confirm/reject posts to php/payments/confirm.php or reject.php with server-side role checks. -->
         <section class="contribution-board page-section" data-contributions-list></section>
       </main>
     </div>

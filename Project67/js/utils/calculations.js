@@ -1,14 +1,15 @@
 import { PAYMENT_STATUS } from "./constants.js";
 
 export function getMembershipsForUser(state, userId) {
-  return state.group_members.filter((member) => Number(member.user_id) === Number(userId));
+  if (!userId) return [];
+  return (state.group_members || []).filter((member) => Number(member.user_id) === Number(userId));
 }
 
 export function getGroupsForUserFromState(state, userId) {
   return getMembershipsForUser(state, userId).map((membership) => {
-    const group = state.groups.find((item) => item.group_id === membership.group_id);
+    const group = (state.groups || []).find((item) => item.group_id === membership.group_id);
     return { ...group, member_role: membership.role };
-  });
+  }).filter((group) => group.group_id);
 }
 
 export function getEffectiveRole(groups) {
@@ -27,9 +28,9 @@ export function resolveActiveGroupId(groups, session) {
 }
 
 export function getScopedPayments(state, groupIds) {
-  const contributions = state.contributions.filter((item) => groupIds.includes(item.group_id));
+  const contributions = (state.contributions || []).filter((item) => groupIds.includes(item.group_id));
   const contributionIds = contributions.map((item) => item.contribution_id);
-  const payments = state.payment_records.filter((item) => contributionIds.includes(item.contribution_id));
+  const payments = (state.payment_records || []).filter((item) => contributionIds.includes(item.contribution_id));
   return { contributions, payments };
 }
 
@@ -110,5 +111,5 @@ export function getUserVisibleActivity(state, userId, activeGroupId = null) {
     ? [Number(activeGroupId)]
     : groups.map((group) => group.group_id);
 
-  return state.activity_logs.filter((item) => !item.group_id || visibleGroupIds.includes(item.group_id));
+  return (state.activity_logs || []).filter((item) => !item.group_id || visibleGroupIds.includes(item.group_id));
 }

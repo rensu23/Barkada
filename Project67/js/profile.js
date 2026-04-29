@@ -8,19 +8,24 @@ export async function initProfilePage() {
   if (page !== "profile") return;
 
   const session = await getCurrentSession();
-  const profile = await getUserProfile(session.user_id);
-  document.querySelector("[data-profile-name]").textContent = profile.name;
-  document.querySelector("[data-profile-email]").textContent = profile.email;
-  document.querySelector("[data-avatar]").textContent = initialsFromName(profile.name);
+  const profile = await getUserProfile(session?.user_id);
+  const displayProfile = profile || session || { name: "Profile not loaded", email: "PHP session required" };
+  document.querySelector("[data-profile-name]").textContent = displayProfile.name;
+  document.querySelector("[data-profile-email]").textContent = displayProfile.email;
+  document.querySelector("[data-avatar]").textContent = initialsFromName(displayProfile.name);
 
   const form = document.querySelector("[data-profile-form]");
-  form.name.value = profile.name;
-  form.email.value = profile.email;
+  form.name.value = profile?.name || "";
+  form.email.value = profile?.email || "";
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const payload = Object.fromEntries(new FormData(form).entries());
-    await updateUserProfile(session.user_id, payload);
-    showToast("Profile details updated in demo state.");
+    try {
+      await updateUserProfile(session?.user_id, payload);
+      showToast("Profile details updated.");
+    } catch (error) {
+      showToast(error.message, "error");
+    }
   });
 }

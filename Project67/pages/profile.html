@@ -29,11 +29,12 @@
               <div class="brand-mark" data-avatar>BR</div>
             </div>
             <div class="detail-list space-top">
-              <div class="summary-row"><span>Role display</span><strong>Managed by the selected demo view</strong></div>
-              <div class="summary-row"><span>Avatar upload</span><strong>Frontend placeholder only for now</strong></div>
+              <div class="summary-row"><span>Role display</span><strong>Read from group_members for the active group</strong></div>
+              <div class="summary-row"><span>Avatar upload</span><strong>Optional future schema extension</strong></div>
             </div>
           </article>
-          <form class="card stack" data-profile-form>
+          <!-- PHP TODO: Submit to php/users/update-profile.php. Validate ownership through session, check duplicate email, and escape rendered users.name/email. -->
+          <form class="card stack" data-profile-form action="../php/users/update-profile.php" method="post">
             <h2>Edit profile</h2>
             <div class="field-group"><label>Name<input name="name" type="text"></label></div>
             <div class="field-group"><label>Email<input name="email" type="email"></label></div>

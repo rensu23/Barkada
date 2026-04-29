@@ -1,160 +1,75 @@
 # Integration Notes
 
-## Root entry
+## Current Architecture
 
-- Open the demo from `index.html` in the project root.
-- Recommended local server path with XAMPP: `http://localhost/Project67/`
-- Do not begin testing by opening nested pages directly first.
+- Frontend pages are static HTML/CSS with JavaScript used for UI behavior and empty-state rendering.
+- JavaScript service files in `js/services/` are thin adapters. They do not contain users, groups, contributions, members, payments, or history records.
+- Authentication must come from PHP sessions, not browser storage.
+- Theme preference may remain client-side because `barkada_db.sql` has no preference column.
 
-## Current demo architecture
+## Schema Source Of Truth
 
-- `js/data/`
-  - seeded demo content aligned to the existing SQL schema
-- `js/services/`
-  - async mock service layer
-- `js/utils/storage.js`
-  - demo database storage plus session storage handling
-- `js/utils/calculations.js`
-  - shared summary and graph calculations
+Use `../barkada_db.sql` as the required database contract:
 
-## What is stored right now
+- `users`: account identity with `user_id`, `name`, `email`, `password`, `created_at`.
+- `groups`: group metadata with `group_id`, `group_name`, `description`, `treasurer_id`, `target_amount`, `deadline`, `join_code`, `created_at`.
+- `group_members`: membership and per-group role with `member_id`, `user_id`, `group_id`, `role`, `joined_at`.
+- `contributions`: contribution definitions with `contribution_id`, `group_id`, `title`, `amount`, `type`, `frequency`.
+- `payment_records`: member payment status with `payment_id`, `user_id`, `contribution_id`, `status`, `marked_at`, `confirmed_at`, `confirmed_by`.
 
-- `localStorage`
-  - `barkada-demo-database`
-    - the full demo database snapshot
-  - `barkada-session`
-    - the remembered session when "Remember me" is checked
-  - `barkada-session-type`
-    - whether the active session is local or session based
-  - `barkada-theme`
-    - light or dark mode preference
-- `sessionStorage`
-  - `barkada-session`
-    - the non-remembered session for the current tab only
-  - `barkada-session-type`
-    - notes that the current session is tab-only
-- cookie fallback
-  - `barkada-session`
-    - a simple demo fallback cookie for remembered sessions
+## Endpoint Map
 
-## How to replace the demo layer later
+- `php/auth/login.php`: validate credentials, call `password_verify`, regenerate PHP session.
+- `php/auth/register.php`: validate fields, check duplicate `users.email`, hash password, insert `users`.
+- `php/auth/logout.php`: clear session variables, destroy the session, redirect or return JSON.
+- `php/auth/session.php`: return safe current-user data and active group context.
+- `php/groups/list.php`: current user's groups from `group_members` joined with `groups`.
+- `php/groups/detail.php`: one group after membership verification.
+- `php/groups/create.php`: insert `groups`, then creator membership as Treasurer in one transaction.
+- `php/groups/update.php`: treasurer-only group update.
+- `php/groups/join.php`: lookup `groups.join_code`, prevent duplicate `group_members`, insert Member role.
+- `php/groups/members.php`: group roster from `group_members` joined with `users`, plus optional SQL status aggregates.
+- `php/contributions/list.php`: SQL-backed contribution list and filters.
+- `php/contributions/create.php`: treasurer-only insert into `contributions`.
+- `php/payments/mark-paid.php`: member-only own-row update to pending status.
+- `php/payments/confirm.php`: treasurer-only update to confirmed/paid.
+- `php/payments/reject.php`: treasurer-only update to rejected status. Rejection notes require an optional schema extension.
+- `php/payments/history.php`: payment history from `payment_records` joined with `contributions` and `groups`.
+- `php/users/profile.php` and `php/users/update-profile.php`: current user profile read/update.
 
-### Authentication
+## Security Plan
 
-Replace these files first:
+- Use PDO or MySQLi prepared statements for every SQL query.
+- Escape rendered HTML with `htmlspecialchars`.
+- Regenerate session ID after login.
+- Add CSRF tokens to all POST forms.
+- Enforce authorization in PHP for every read/write:
+  - logged-in session required,
+  - user belongs to requested group,
+  - treasurer-only actions check `group_members.role`,
+  - members can view or update only their own `payment_records`,
+  - frontend role display is UX only.
+- Prevent IDOR by checking membership before returning or updating any `group_id`, `contribution_id`, or `payment_id`.
 
-- `js/services/auth.service.js`
-- `js/utils/storage.js`
-- `php/auth/login.php`
-- `php/auth/register.php`
-- `php/auth/logout.php`
-- `php/auth/session.php`
+## Error Handling Plan
 
-Suggested migration:
+Return consistent errors for database connection failure, missing session, unauthorized access, invalid group code, duplicate membership, missing contribution, invalid payment record, already-confirmed payment, rejected update, validation failures, empty result sets, and unexpected server errors.
 
-1. Keep the frontend form validation.
-2. Replace the mock async return values with `fetch()` calls to the PHP auth endpoints.
-3. Stop storing user sessions in browser storage for production auth.
-4. Use PHP sessions instead.
-5. Return safe user details such as `user_id`, `name`, `email`, and role summary after login.
+## Sorting And Filtering Plan
 
-### Groups
+Move filters into GET parameters handled by SQL:
 
-Replace:
+- contributions: group, type/frequency, status, amount, title search, latest update.
+- members: name, role, payment status.
+- history: group, member, contribution, status, latest update.
+- dashboard: aggregate by active group and `payment_records.status`.
 
-- `js/services/group.service.js`
-- `php/groups/*.php`
+## Next Steps
 
-Important existing schema tables:
-
-- `groups`
-- `group_members`
-
-### Contributions and payments
-
-Replace:
-
-- `js/services/contribution.service.js`
-- `js/services/payment.service.js`
-- `php/contributions/*.php`
-- `php/payments/*.php`
-
-Important existing schema tables:
-
-- `contributions`
-- `payment_records`
-
-### Graph data
-
-Current graph calculations come from:
-
-- `js/utils/calculations.js`
-- `js/dashboard.js`
-
-To replace them later:
-
-1. Return real grouped counts and totals from PHP or calculate them in frontend from fetched rows.
-2. Keep the same data shape if possible.
-3. Reuse the existing calculation helpers if your PHP responses stay close to the current schema.
-
-## PHP endpoint intention map
-
-- `php/auth/login.php`
-  - login
-- `php/auth/register.php`
-  - sign up
-- `php/auth/forgot-password.php`
-  - request reset
-- `php/auth/reset-password.php`
-  - submit new password
-- `php/auth/logout.php`
-  - logout
-- `php/auth/session.php`
-  - restore session
-- `php/groups/list.php`
-  - groups for the current user
-- `php/groups/detail.php`
-  - one group detail
-- `php/groups/create.php`
-  - create group
-- `php/groups/update.php`
-  - update group
-- `php/groups/join.php`
-  - join by code
-- `php/groups/members.php`
-  - group member list
-- `php/contributions/list.php`
-  - contributions list
-- `php/contributions/create.php`
-  - add contribution
-- `php/payments/mark-paid.php`
-  - member marks paid
-- `php/payments/confirm.php`
-  - treasurer confirms
-- `php/payments/reject.php`
-  - treasurer rejects
-- `php/payments/history.php`
-  - payment history
-
-## Access method
-
-Group access should use custom group codes through `groups.join_code`.
-
-Recommended backend flow:
-
-1. User submits a code from `pages/join-group.html`.
-2. Frontend calls `php/groups/join.php`.
-3. PHP validates the submitted code against `groups.join_code`.
-4. PHP inserts into `group_members` if the user is allowed to join.
-
-## Secure auth replacement reminder
-
-The current demo stores plain text passwords in mock data only because the backend is not connected yet.
-
-When you replace this layer:
-
-1. Hash passwords in PHP.
-2. Verify them server-side.
-3. Use prepared statements for all queries.
-4. Store login state in secure PHP sessions.
-5. Stop exposing password values to the frontend.
+1. Complete `php/config/database.php` with local credentials outside source control if needed.
+2. Implement auth endpoints and PHP session guards.
+3. Wire frontend services to JSON endpoints with `fetchJson`.
+4. Implement groups and group code join.
+5. Implement contributions and payment status updates.
+6. Implement treasurer confirmation and rejection.
+7. Add pagination and server-side filters for history/report pages.

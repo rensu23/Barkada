@@ -1,6 +1,6 @@
 # Optional Schema Notes
 
-The current demo stays aligned with the existing SQL schema:
+The current database source of truth is still only:
 
 - `users`
 - `groups`
@@ -8,34 +8,14 @@ The current demo stays aligned with the existing SQL schema:
 - `contributions`
 - `payment_records`
 
-## Where the demo temporarily goes beyond the schema
+Do not add tables or columns unless the team intentionally extends the schema.
 
-These are frontend-only extras or notes for future backend work:
+Optional future additions:
 
-- rejection notes
-  - the demo keeps a `rejection_note` field in local state for better testing
-  - the current SQL file does not include that column
-- due dates and notes on contributions
-  - used in the frontend demo to make pages richer
-  - the current SQL schema does not store them yet
-- activity timeline rows
-  - currently frontend-only
-- group code history
-  - optional only if you want to track when custom access codes are rotated
+- `password_reset_tokens`: secure forgot/reset password flow.
+- `contribution_cycles`: per-cycle rows if recurring contributions need schedules beyond `contributions.frequency`.
+- `activity_logs`: permanent recent activity history instead of deriving updates from `payment_records`.
+- `payment_record_notes`: treasurer rejection remarks.
+- `user_profile_meta`: avatars or profile preferences.
 
-## Optional future additions
-
-- `password_reset_tokens`
-  - secure forgot/reset password flow
-- `contribution_cycles`
-  - if recurring contributions need per-cycle storage
-- `activity_logs`
-  - if you want permanent recent activity history
-- `payment_record_notes`
-  - if you want treasurer rejection notes stored cleanly
-- `user_profile_meta`
-  - if you want avatars or profile extras later
-
-## Recommendation
-
-Do not add all optional tables immediately. Connect the core schema first, then add only the extra tables your final backend really needs.
+Recommended order: connect the core schema first, then add only the extra tables required by final project scope.

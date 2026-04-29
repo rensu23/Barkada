@@ -1,11 +1,15 @@
-# Barkada Demo Starter
+# Barkada Backend-Ready Starter
 
-Open the project from the root file: `index.html`.
+Open the project from `index.html`.
 
-Recommended local URL:
+The frontend shell is intentionally clean of temporary application data. Real users, groups, memberships, contributions, and payment records should come from PHP/MySQL using `../barkada_db.sql`.
 
-- `http://localhost/Project67/` if you place the folder inside XAMPP `htdocs`
+Start backend work with:
 
-Do not start by opening nested pages directly first. The root entry gives the cleanest first-run flow for demo testing.
-
-Later, when PHP is connected, `index.html` can become `index.php` while keeping the same frontend folders and most of the current page structure.
+- `docs/integration-notes.md`
+- `docs/php-mysql-migration-plan.md`
+- `php/config/database.php`
+- `php/auth/login.php`
+- `php/groups/join.php`
+- `php/contributions/list.php`
+- `php/payments/confirm.php`

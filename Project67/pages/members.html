@@ -22,9 +22,10 @@
           <div class="page-header-copy">
             <p class="eyebrow">Members</p>
             <h1>Member list and quick filters</h1>
-            <p class="helper-text">This page uses <code>group_members</code> plus <code>users</code> data and is ready for richer backend summaries later.</p>
+            <p class="helper-text">PHP TODO: Load members from group_members joined to users for the active group. Hide restricted actions completely for non-treasurers.</p>
           </div>
         </section>
+        <!-- PHP TODO: Send filters as query parameters to php/groups/members.php and apply SQL-backed role/status/name filtering. -->
         <section class="card page-section">
           <div class="filter-bar">
             <div class="field-group">
@@ -41,6 +42,7 @@
             </div>
           </div>
         </section>
+        <!-- PHP TODO: Treasurer-only management actions require server-side authorization; never trust frontend role values. -->
         <section class="member-list page-section" data-members-list></section>
       </main>
     </div>

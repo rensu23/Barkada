@@ -19,17 +19,18 @@
         <div class="stack">
           <p class="eyebrow">Quick join</p>
           <h1>Join with a group code.</h1>
-          <p class="helper-text">Enter the custom code shared by your treasurer. Later, PHP should validate this against the `groups.join_code` column.</p>
+          <p class="helper-text">Enter the custom code shared by your treasurer.</p>
         </div>
-        <form class="stack space-top" data-join-form>
+        <!-- PHP TODO: Submit to php/groups/join.php. Validate join_code against groups.join_code, require session user, prevent duplicate group_members rows, and return invalid/unauthorized errors. -->
+        <form class="stack space-top" data-join-form action="../php/groups/join.php" method="post">
           <div class="field-group">
             <label for="join-code">Join code</label>
-            <input id="join-code" type="text" name="code" placeholder="Example: OUT101">
+            <input id="join-code" type="text" name="join_code" placeholder="Enter group code" aria-describedby="join-feedback">
           </div>
           <button class="button button-block" type="submit">Join group</button>
         </form>
-        <article class="callout hidden" data-join-success><span>Success</span><strong>You joined a group.</strong></article>
-        <article class="callout hidden" data-join-invalid><span>Check</span><strong>That code is invalid or expired.</strong></article>
+        <article class="callout hidden" data-join-success aria-live="polite" id="join-feedback"><span>Success</span><strong>You joined a group.</strong></article>
+        <article class="callout hidden" data-join-invalid aria-live="assertive"><span>Check</span><strong>That code is invalid or expired.</strong></article>
       </section>
       <section class="card">
         <div class="page-header">
@@ -41,12 +42,12 @@
         </div>
         <div class="detail-list space-top">
           <div class="summary-row">
-            <span>Example outing code</span>
-            <strong>OUT101</strong>
+            <span>Lookup</span>
+            <strong>groups.join_code</strong>
           </div>
           <div class="summary-row">
-            <span>Example class code</span>
-            <strong>PUB102</strong>
+            <span>Insert</span>
+            <strong>group_members user_id/group_id/role</strong>
           </div>
           <div class="summary-row">
             <span>Backend check</span>
