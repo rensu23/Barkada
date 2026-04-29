@@ -23,7 +23,7 @@
 2. Open `Contributions`
 3. Use `Mark as Paid` on an unpaid item
 4. Open `History`
-5. Open `My QR`
+5. Open `Join Group` and test a custom code such as `OUT101`
 
 ### Hybrid demo
 

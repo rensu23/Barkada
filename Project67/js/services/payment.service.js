@@ -14,6 +14,7 @@ function appendActivity(state, title, meta) {
 
 export async function getPendingPayments(groupId = null) {
   const state = getState();
+  // SQL migration: join payment_records -> contributions -> groups and scope by treasurer authorization.
   const rows = state.payment_records
     .filter((payment) => payment.status === PAYMENT_STATUS.PENDING)
     .map((payment) => {
@@ -28,6 +29,7 @@ export async function getPendingPayments(groupId = null) {
 
 export async function markPaymentAsDone(paymentId) {
   const state = getState();
+  // Future PHP endpoint: update payment_records.status and marked_at for this payment_id.
   const payment = state.payment_records.find((item) => Number(item.payment_id) === Number(paymentId));
   const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
   const member = state.users.find((item) => item.user_id === payment.user_id);
@@ -42,6 +44,7 @@ export async function markPaymentAsDone(paymentId) {
 
 export async function confirmPayment(paymentId, confirmedBy) {
   const state = getState();
+  // Future PHP endpoint: verify treasurer permission before setting confirmed_at/confirmed_by.
   const payment = state.payment_records.find((item) => Number(item.payment_id) === Number(paymentId));
   const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
   const member = state.users.find((item) => item.user_id === payment.user_id);
@@ -56,6 +59,7 @@ export async function confirmPayment(paymentId, confirmedBy) {
 
 export async function rejectPayment(paymentId, confirmedBy, note) {
   const state = getState();
+  // Future PHP endpoint: verify treasurer permission and persist rejection_note if the schema adds it.
   const payment = state.payment_records.find((item) => Number(item.payment_id) === Number(paymentId));
   const contribution = state.contributions.find((item) => item.contribution_id === payment.contribution_id);
   const member = state.users.find((item) => item.user_id === payment.user_id);

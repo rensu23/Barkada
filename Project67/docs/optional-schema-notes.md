@@ -20,8 +20,8 @@ These are frontend-only extras or notes for future backend work:
   - the current SQL schema does not store them yet
 - activity timeline rows
   - currently frontend-only
-- QR metadata
-  - currently frontend-only
+- group code history
+  - optional only if you want to track when custom access codes are rotated
 
 ## Optional future additions
 

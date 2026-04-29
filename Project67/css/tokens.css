@@ -11,15 +11,16 @@
   --odyssey: #23617e;
 
   /* Semantic light theme tokens */
-  --color-bg: #f4f7f8;
+  --color-bg: #f6f8f8;
   --color-surface: #ffffff;
   --color-surface-alt: #eef3f4;
   --color-card: rgba(255, 255, 255, 0.92);
   --color-border: rgba(35, 97, 126, 0.14);
   --color-text: #173042;
-  --color-text-muted: #58707c;
+  --color-text-muted: #4f6670;
   --color-primary: var(--odyssey);
   --color-primary-strong: #18485f;
+  --color-on-primary: #ffffff;
   --color-secondary: var(--lagoon);
   --color-success: var(--palm);
   --color-warning: var(--sunset);
@@ -32,14 +33,14 @@
   --shadow-md: 0 18px 48px rgba(24, 58, 73, 0.14);
   --shadow-lg: 0 30px 70px rgba(16, 33, 44, 0.18);
 
-  --radius-sm: 0.75rem;
-  --radius-md: 1.125rem;
-  --radius-lg: 1.5rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.5rem;
   --radius-pill: 999px;
 
-  --container-width: min(1180px, calc(100vw - 2rem));
+  --container-width: min(1180px, calc(100vw - clamp(1rem, 4vw, 2rem)));
   --sidebar-width: 17.5rem;
-  --header-height: 4.5rem;
+  --header-height: 4.25rem;
   --bottom-nav-height: 4.75rem;
 
   --font-sans: "Aptos", "Trebuchet MS", "Segoe UI", sans-serif;

@@ -1,15 +1,16 @@
 /* Theme overrides live here so beginners can quickly find them. */
 html[data-theme="dark"] {
-  --color-bg: #0d1b24;
-  --color-surface: #122532;
-  --color-surface-alt: #173141;
-  --color-card: rgba(18, 37, 50, 0.92);
-  --color-border: rgba(229, 233, 235, 0.1);
-  --color-text: #edf6f7;
-  --color-text-muted: #a6c0ca;
-  --color-primary: #6eb1ca;
-  --color-primary-strong: #94bebb;
-  --color-secondary: #4f7776;
+  --color-bg: #07141c;
+  --color-surface: #102430;
+  --color-surface-alt: #193543;
+  --color-card: rgba(18, 39, 51, 0.96);
+  --color-border: rgba(229, 233, 235, 0.22);
+  --color-text: #f4fbfb;
+  --color-text-muted: #c7dce2;
+  --color-primary: #8ad0e7;
+  --color-primary-strong: #b9e1ee;
+  --color-on-primary: #06131a;
+  --color-secondary: #77aaa6;
   --color-success: #9db683;
   --color-warning: #e8b280;
   --color-danger: #f08e84;

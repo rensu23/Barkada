@@ -3,7 +3,6 @@ import { initDashboardPage } from "./dashboard.js";
 import { initGroupsPage } from "./groups.js";
 import { initContributionsPage } from "./contributions.js";
 import { initPaymentsPage } from "./payments.js";
-import { initQrPage } from "./qr.js";
 import { initProfilePage } from "./profile.js";
 import { initSettingsPage } from "./settings.js";
 import { bindThemeButtons, applySavedTheme } from "./theme.js";
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await initGroupsPage();
   await initContributionsPage();
   await initPaymentsPage();
-  await initQrPage();
   await initProfilePage();
   initSettingsPage();
 });

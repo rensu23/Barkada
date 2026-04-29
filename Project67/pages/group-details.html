@@ -26,7 +26,7 @@
           </div>
           <div class="header-actions">
             <a class="button-secondary" href="./edit-group.html?group_id=101" data-group-edit-link>Edit group</a>
-            <a class="button" href="./group-qr.html">View group QR</a>
+            <button class="button" type="button" data-copy-group-code>Copy group code</button>
           </div>
         </section>
         <section class="grid-2 page-section">
@@ -34,13 +34,9 @@
             <h2>Group summary</h2>
             <div class="detail-list space-top" data-group-meta></div>
           </article>
-          <article class="card">
-            <h2>Share tools</h2>
-            <div class="detail-list space-top">
-              <div class="summary-row"><span>Join link</span><strong>https://barkada.app/join/BORA101</strong></div>
-              <div class="summary-row"><span>Copy action</span><strong>UI ready for clipboard hook</strong></div>
-              <div class="summary-row"><span>Share button</span><strong>Use Web Share API or PHP-generated links later</strong></div>
-            </div>
+          <article class="card" data-group-tools>
+            <h2>Group access</h2>
+            <div class="detail-list space-top"></div>
           </article>
         </section>
         <section class="grid-2 page-section">

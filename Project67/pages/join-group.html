@@ -18,36 +18,41 @@
       <section class="card">
         <div class="stack">
           <p class="eyebrow">Quick join</p>
-          <h1>Join with a link, code, or QR.</h1>
-          <p class="helper-text">This page includes the full join entry UI. Actual validation can later move to PHP once invite rules are finalized.</p>
+          <h1>Join with a group code.</h1>
+          <p class="helper-text">Enter the custom code shared by your treasurer. Later, PHP should validate this against the `groups.join_code` column.</p>
         </div>
         <form class="stack space-top" data-join-form>
           <div class="field-group">
             <label for="join-code">Join code</label>
-            <input id="join-code" type="text" name="code" placeholder="Example: BORA101">
+            <input id="join-code" type="text" name="code" placeholder="Example: OUT101">
           </div>
           <button class="button button-block" type="submit">Join group</button>
         </form>
         <article class="callout hidden" data-join-success><span>Success</span><strong>You joined a group.</strong></article>
         <article class="callout hidden" data-join-invalid><span>Check</span><strong>That code is invalid or expired.</strong></article>
       </section>
-      <section class="qr-card">
+      <section class="card">
         <div class="page-header">
           <div class="page-header-copy">
-            <p class="eyebrow">Scan option</p>
-            <h2>QR placeholder</h2>
-            <p class="helper-text">A real scanner library can be connected here later. For now, the UI shows the expected layout and fallback flow.</p>
+            <p class="eyebrow">Code help</p>
+            <h2>Where to find the code</h2>
+            <p class="helper-text">Ask your treasurer or group admin for the current custom code. Codes are short, readable, and easier to validate through PHP/MySQL later.</p>
           </div>
-          <a class="button-ghost" href="./scan-qr.html">Open scanner page</a>
         </div>
-        <div class="qr-placeholder space-top"></div>
-        <form class="stack space-top" data-code-form>
-          <div class="field-group">
-            <label for="manual-code">Manual fallback entry</label>
-            <input id="manual-code" name="code" type="text" placeholder="Paste or type a code">
+        <div class="detail-list space-top">
+          <div class="summary-row">
+            <span>Example outing code</span>
+            <strong>OUT101</strong>
           </div>
-          <button class="button-secondary button-block" type="submit">Try code</button>
-        </form>
+          <div class="summary-row">
+            <span>Example class code</span>
+            <strong>PUB102</strong>
+          </div>
+          <div class="summary-row">
+            <span>Backend check</span>
+            <strong>Validate through `groups.join_code`</strong>
+          </div>
+        </div>
       </section>
     </main>
   </div>

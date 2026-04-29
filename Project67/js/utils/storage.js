@@ -4,7 +4,6 @@ import { mockMembers } from "../data/mock-members.js";
 import { mockContributions } from "../data/mock-contributions.js";
 import { mockPayments } from "../data/mock-payments.js";
 import { mockActivity } from "../data/mock-activity.js";
-import { mockQr } from "../data/mock-qr.js";
 import { STORAGE_KEYS } from "./constants.js";
 import { clearCookie, getCookie, setCookie } from "./cookies.js";
 import { getEffectiveRole, getGroupsForUserFromState, resolveActiveGroupId } from "./calculations.js";
@@ -16,8 +15,13 @@ const seedDatabase = {
   contributions: mockContributions,
   payment_records: mockPayments,
   activity_logs: mockActivity,
-  qr_meta: mockQr,
 };
+
+/*
+  Demo persistence layer.
+  Later, PHP sessions should replace browser session storage and SQL queries
+  should replace the localStorage-backed demo database.
+*/
 
 function getSessionStorageTarget() {
   const storedType = localStorage.getItem(STORAGE_KEYS.session_type) || sessionStorage.getItem(STORAGE_KEYS.session_type);

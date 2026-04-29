@@ -22,10 +22,10 @@
           <div class="page-header-copy">
             <p class="eyebrow">Contributions</p>
             <h1>One-time and recurring dues</h1>
-            <p class="helper-text">Create contributions for a group, then use payment records to track member status.</p>
+            <p class="helper-text">Review dues, mark your own payment as done, or confirm member claims directly on the matching row.</p>
           </div>
         </section>
-        <section class="card page-section">
+        <section class="card toolbar-card page-section">
           <div class="filter-bar">
             <div class="field-group">
               <label for="contrib-search">Search contributions</label>
@@ -43,10 +43,21 @@
               <label for="contrib-group">Group</label>
               <select id="contrib-group" data-contributions-group></select>
             </div>
+            <div class="field-group">
+              <label for="contrib-sort">Sort</label>
+              <select id="contrib-sort" data-contributions-sort>
+                <option value="due-soon">Due soon</option>
+                <option value="amount-high">Highest amount</option>
+                <option value="amount-low">Lowest amount</option>
+                <option value="title">Title</option>
+              </select>
+            </div>
           </div>
         </section>
-        <section class="grid-2 page-section">
-          <form class="card stack" data-contribution-form>
+        <section class="page-section">
+          <details class="disclosure" data-contribution-create-panel>
+            <summary>Create contribution</summary>
+            <form class="stack" data-contribution-form>
             <h2>Create contribution</h2>
             <div class="form-grid">
               <div class="field-group"><label>group_id<select name="group_id"><option value="101">101 - Boracay Summer Fund</option><option value="102">102 - CS Batch Hoodies</option><option value="103">103 - Org Outreach Kit</option></select></label></div>
@@ -58,16 +69,10 @@
             </div>
             <div class="field-group"><label>Notes<textarea name="notes" rows="4" placeholder="Reference or reminder for members"></textarea></label></div>
             <button class="button" type="submit">Add contribution</button>
-          </form>
-          <aside class="stack">
-            <article class="card">
-              <h2>Member actions</h2>
-              <p class="helper-text">Unpaid or rejected items can be marked as paid from here in the demo flow.</p>
-              <div class="mobile-list space-top" data-member-actions></div>
-            </article>
-          </aside>
+            </form>
+          </details>
         </section>
-        <section class="grid-3 page-section" data-contributions-list></section>
+        <section class="contribution-board page-section" data-contributions-list></section>
       </main>
     </div>
   </div>

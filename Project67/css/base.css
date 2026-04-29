@@ -27,6 +27,7 @@ body {
     var(--color-bg);
   color: var(--color-text);
   line-height: 1.5;
+  font-variant-numeric: tabular-nums;
 }
 
 img {
@@ -78,7 +79,7 @@ textarea:focus-visible,
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid transparent;
-  box-shadow: 0 0 0 3px rgba(148, 190, 187, 0.35);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 35%, transparent);
   border-color: var(--color-primary);
 }
 

@@ -136,6 +136,17 @@ To replace them later:
 - `php/payments/history.php`
   - payment history
 
+## Access method
+
+Group access should use custom group codes through `groups.join_code`.
+
+Recommended backend flow:
+
+1. User submits a code from `pages/join-group.html`.
+2. Frontend calls `php/groups/join.php`.
+3. PHP validates the submitted code against `groups.join_code`.
+4. PHP inserts into `group_members` if the user is allowed to join.
+
 ## Secure auth replacement reminder
 
 The current demo stores plain text passwords in mock data only because the backend is not connected yet.

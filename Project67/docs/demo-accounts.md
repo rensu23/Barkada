@@ -4,7 +4,7 @@ All demo accounts use the same password:
 
 - `Demo123!`
 
-## 1. Treasurer-only demo
+## 1. Treasurer demo
 
 - Email: `treasurer@demo.com`
 - Password: `Demo123!`
@@ -14,7 +14,7 @@ All demo accounts use the same password:
   - treasurer dashboard summaries
   - member management
 
-## 2. Member-only demo
+## 2. Member demo
 
 - Email: `member@demo.com`
 - Password: `Demo123!`
@@ -22,7 +22,7 @@ All demo accounts use the same password:
   - current dues
   - mark-as-paid flow
   - payment history
-  - personal QR
+  - group code join flow
 
 ## 3. Hybrid demo
 

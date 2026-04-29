@@ -19,6 +19,7 @@ export async function getGroupById(groupId) {
 
 export async function createGroup(payload, currentUserId) {
   const state = getState();
+  // SQL migration: insert into groups, then group_members with role Treasurer in one transaction.
   const group_id = Date.now();
   const newGroup = {
     group_id,
@@ -47,6 +48,7 @@ export async function createGroup(payload, currentUserId) {
 
 export async function updateGroup(groupId, payload) {
   const state = getState();
+  // PHP must verify group_members.role = Treasurer before allowing this update.
   const group = state.groups.find((item) => Number(item.group_id) === Number(groupId));
   Object.assign(group, payload);
   saveState(state);
@@ -55,6 +57,7 @@ export async function updateGroup(groupId, payload) {
 
 export async function joinGroupByCode(joinCode, userId) {
   const state = getState();
+  // Future PHP endpoint: validate this against groups.join_code in barkada_db.
   const group = state.groups.find((item) => item.join_code.toLowerCase() === joinCode.toLowerCase());
   if (!group) {
     throw new Error("That group code is invalid or has expired.");
@@ -66,6 +69,7 @@ export async function joinGroupByCode(joinCode, userId) {
 
   const membershipExists = state.group_members.some((member) => member.group_id === group.group_id && member.user_id === userId);
   if (!membershipExists) {
+    // SQL migration: also create or backfill payment_records for open contributions in this group.
     state.group_members.push({
       member_id: Date.now(),
       user_id: userId,
@@ -81,6 +85,7 @@ export async function joinGroupByCode(joinCode, userId) {
 
 export async function getMembersForGroup(groupId) {
   const state = getState();
+  // Later this should be a SQL aggregate over users, group_members, contributions, and payment_records.
   const rows = state.group_members
     .filter((member) => Number(member.group_id) === Number(groupId))
     .map((member) => ({

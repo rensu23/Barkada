@@ -4,12 +4,18 @@ import { getState, saveState } from "../utils/storage.js";
 
 export async function getContributions(filterGroupId = "") {
   const state = getState();
+  // Later PHP should return SQL-backed member payment status rows for each contribution.
   const contributions = state.contributions
     .filter((item) => (filterGroupId ? Number(item.group_id) === Number(filterGroupId) : true))
     .map((item) => ({
       ...item,
       group: state.groups.find((group) => group.group_id === item.group_id),
-      payments: state.payment_records.filter((payment) => payment.contribution_id === item.contribution_id),
+      payments: state.payment_records
+        .filter((payment) => payment.contribution_id === item.contribution_id)
+        .map((payment) => ({
+          ...payment,
+          user: state.users.find((user) => user.user_id === payment.user_id),
+        })),
     }));
 
   return fakeRequest(contributions, 260);
@@ -17,6 +23,9 @@ export async function getContributions(filterGroupId = "") {
 
 export async function createContribution(payload) {
   const state = getState();
+  // Keep core field names aligned with the current contributions table.
+  // due_date and notes are demo-only until the SQL schema is extended. PHP must
+  // verify the active user is a treasurer for group_id before inserting.
   const contribution = {
     contribution_id: Date.now(),
     group_id: Number(payload.group_id),
