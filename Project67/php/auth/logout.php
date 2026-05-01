@@ -1,17 +1,14 @@
 <?php
 /**
- * POST /auth/logout.php
- *
- * TODO:
- * - Destroy the PHP session.
- * - Return a simple success response.
+ * Logout endpoint.
  */
-session_start();
+require_once __DIR__ . "/../helpers/auth-guard.php";
 
+startBarkadaSession();
 session_unset();
 session_destroy();
 
-// delete cookie
-setcookie("remember_user", "", time() - 3600, "/");
-
-echo json_encode(["success" => true]);
+jsonResponse([
+    "success" => true,
+    "message" => "Logged out."
+]);

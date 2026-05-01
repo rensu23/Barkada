@@ -1,48 +1,59 @@
 <?php
 /**
- * GET /auth/session.php
- *
- * TODO:
- * - Return the logged-in user's safe session details.
- * - Useful for restoring frontend state after refresh.
+ * Session endpoint used by static HTML pages after refresh.
+ * It also returns a small state object for dashboard calculations.
  */
 
-require_once __DIR__ . '/../helpers/validators.php';
+require_once __DIR__ . "/../helpers/auth-guard.php";
 
-session_start();
-header('Content-Type: application/json');
+$userId = requireLogin();
+$sessionUser = buildSessionPayload($conn, $userId);
 
-// Secure Configuration
-if (session_status() === PHP_SESSION_NONE) {
-    session_start([
-        'cookie_httponly' => true,
-        'cookie_secure' => true,
-        'samesite' => 'Lax'
-    ]);
+$groups = $sessionUser["groups"];
+$groupIds = array_map(fn($group) => (int) $group["group_id"], $groups);
+$state = [
+    "users" => [],
+    "groups" => $groups,
+    "group_members" => [],
+    "contributions" => [],
+    "payment_records" => []
+];
+
+if (count($groupIds) > 0) {
+    $placeholders = implode(",", array_fill(0, count($groupIds), "?"));
+    $types = str_repeat("i", count($groupIds));
+
+    $stmt = $conn->prepare("SELECT member_id, user_id, group_id, role, joined_at FROM group_members WHERE group_id IN ($placeholders)");
+    $stmt->bind_param($types, ...$groupIds);
+    $stmt->execute();
+    $state["group_members"] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    $stmt = $conn->prepare("SELECT contribution_id, group_id, title, amount, type, frequency, due_date, notes FROM contributions WHERE group_id IN ($placeholders)");
+    $stmt->bind_param($types, ...$groupIds);
+    $stmt->execute();
+    $state["contributions"] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    $paymentSql =
+        "SELECT pr.payment_id, pr.user_id, pr.contribution_id, pr.status, pr.marked_at, pr.confirmed_at, pr.confirmed_by
+         FROM payment_records pr
+         INNER JOIN contributions c ON c.contribution_id = pr.contribution_id
+         INNER JOIN group_members gm ON gm.group_id = c.group_id AND gm.user_id = ?
+         WHERE c.group_id IN ($placeholders)
+           AND (pr.user_id = ? OR gm.role = 'Treasurer')
+         ORDER BY pr.marked_at DESC";
+    $stmt = $conn->prepare($paymentSql);
+    $paymentTypes = "i" . $types . "i";
+    $paymentParams = array_merge([$userId], $groupIds, [$userId]);
+    $stmt->bind_param($paymentTypes, ...$paymentParams);
+    $stmt->execute();
+    $state["payment_records"] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
 }
 
-/**
- * Return the logged-in user's safe session details.
- */
-function getActiveSession() {
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Unauthorized: No active session.'
-        ]);
-        exit;
-    }
-
-    // Filter sensitive data before returning to frontend
-    echo json_encode([
-        'success' => true,
-        'user' => [
-            'id'    => (int)$_SESSION['user_id'],
-            'name'  => htmlspecialchars($_SESSION['user_name'] ?? ''),
-            'email' => filter_var($_SESSION['user_email'] ?? '', FILTER_SANITIZE_EMAIL)
-        ]
-    ]);
-}
-
-getActiveSession();
+jsonResponse([
+    "success" => true,
+    "user" => $sessionUser,
+    "state" => $state
+]);

@@ -1,56 +1,54 @@
 <?php
-header("Content-Type: application/json");
-require_once "../config/database.php";
+/**
+ * Registration endpoint.
+ * Creates one users row using only the columns in barkada_db.sql.
+ */
 
-// Only allow POST
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo json_encode(["error" => "POST request required"]);
-    exit;
-}
+require_once __DIR__ . "/../helpers/auth-guard.php";
 
-// Get form data
-$name = trim($_POST['name'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$password = trim($_POST['password'] ?? '');
+requirePost();
+$data = readRequestData();
 
-// Validate
-if (!$name || !$email || !$password) {
-    echo json_encode(["error" => "All fields are required"]);
-    exit;
+$name = cleanText($data["name"] ?? "");
+$email = cleanText($data["email"] ?? "");
+$password = (string) ($data["password"] ?? "");
+$confirmPassword = (string) ($data["confirm_password"] ?? $password);
+
+if ($name === "" || $email === "" || $password === "") {
+    jsonResponse(["success" => false, "message" => "All fields are required.", "error" => "All fields are required."], 422);
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["error" => "Invalid email format"]);
-    exit;
+    jsonResponse(["success" => false, "message" => "Invalid email format.", "error" => "Invalid email format."], 422);
 }
 
-// Check if email already exists
-$stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
+if (strlen($password) < 8) {
+    jsonResponse(["success" => false, "message" => "Password must be at least 8 characters.", "error" => "Password must be at least 8 characters."], 422);
+}
+
+if ($password !== $confirmPassword) {
+    jsonResponse(["success" => false, "message" => "Passwords do not match.", "error" => "Passwords do not match."], 422);
+}
+
+$stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1");
 $stmt->bind_param("s", $email);
 $stmt->execute();
-$stmt->store_result();
-
-if ($stmt->num_rows > 0) {
-    echo json_encode(["error" => "Email already registered"]);
-    exit;
-}
+$exists = $stmt->get_result()->num_rows > 0;
 $stmt->close();
 
-// Hash password
+if ($exists) {
+    jsonResponse(["success" => false, "message" => "Email already registered.", "error" => "Email already registered."], 409);
+}
+
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-// Insert user
-$stmt = $conn->prepare(
-    "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
-);
+$stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
 $stmt->bind_param("sss", $name, $email, $hashedPassword);
-
-if ($stmt->execute()) {
-    echo json_encode(["success" => "Registration successful"]);
-} else {
-    echo json_encode(["error" => "Registration failed"]);
-}
-
+$stmt->execute();
 $stmt->close();
-$conn->close();
+
+jsonResponse([
+    "success" => true,
+    "message" => "Registration successful. You can now log in."
+]);
 ?>

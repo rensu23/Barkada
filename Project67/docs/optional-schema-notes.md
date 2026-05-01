@@ -8,7 +8,12 @@ The current database source of truth is still only:
 - `contributions`
 - `payment_records`
 
-Do not add tables or columns unless the team intentionally extends the schema.
+Do not add more tables or columns unless the team intentionally extends the schema.
+
+Current approved schema extension:
+
+- `contributions.due_date`: optional due date for each contribution.
+- `contributions.notes`: optional notes or reminders for each contribution.
 
 Optional future additions:
 

@@ -30,9 +30,8 @@ export function initRouteGuards() {
   const publicPage = document.body.dataset.page;
   const session = getSession();
 
-  // PHP TODO: Once PHP sessions are live, authenticated pages should be guarded
-  // server-side before HTML renders. This static cleanup pass leaves pages
-  // navigable so empty states and integration notes are visible without client-side auth.
+  // Static HTML pages are guarded by getCurrentSession() in main.js before
+  // app data is loaded.
 
   return true;
 }

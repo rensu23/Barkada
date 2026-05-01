@@ -1,8 +1,13 @@
 <?php
 /**
- * GET /groups/list.php
- *
- * TODO:
- * - Use the logged-in user_id from session.
- * - Join groups with group_members so the frontend receives role information too.
+ * Returns the groups joined by the logged-in user.
  */
+
+require_once __DIR__ . "/../helpers/auth-guard.php";
+
+$userId = requireLogin();
+
+jsonResponse([
+    "success" => true,
+    "groups" => fetchUserGroups($conn, $userId)
+]);

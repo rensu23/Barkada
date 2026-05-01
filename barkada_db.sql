@@ -33,7 +33,9 @@ CREATE TABLE `contributions` (
   `title` varchar(100) DEFAULT NULL,
   `amount` decimal(10,2) DEFAULT NULL,
   `type` varchar(20) DEFAULT NULL,
-  `frequency` varchar(20) DEFAULT NULL
+  `frequency` varchar(20) DEFAULT NULL,
+  `due_date` date DEFAULT NULL,
+  `notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -120,6 +122,7 @@ ALTER TABLE `groups`
 --
 ALTER TABLE `group_members`
   ADD PRIMARY KEY (`member_id`),
+  ADD UNIQUE KEY `unique_user_group` (`user_id`,`group_id`),
   ADD KEY `group_members_ibfk_1` (`user_id`),
   ADD KEY `group_members_ibfk_2` (`group_id`);
 
@@ -135,7 +138,8 @@ ALTER TABLE `payment_records`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `unique_email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables

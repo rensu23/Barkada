@@ -11,17 +11,28 @@
   <link rel="stylesheet" href="../css/utilities.css">
   <link rel="stylesheet" href="../css/pages.css">
 </head>
-<body data-page="join-group" data-app-page="join-group">
-  <div class="public-shell">
-    <header data-public-header></header>
-    <main class="container two-column">
+<body class="app-shell" data-app-page="join-group">
+  <div class="app-layout">
+    <aside class="app-sidebar" data-sidebar></aside>
+    <div class="app-main">
+      <header class="app-topbar" data-topbar></header>
+      <nav class="mobile-bottom-nav" data-bottom-nav></nav>
+      <main class="page-content">
+        <section class="page-header page-section">
+          <div class="page-header-copy">
+            <p class="eyebrow">Join group</p>
+            <h1>Join with a group code.</h1>
+            <p class="helper-text">Enter the custom code shared by your treasurer.</p>
+          </div>
+          <a class="button-secondary" href="./groups.html">Back to groups</a>
+        </section>
+        <section class="grid-2 page-section">
       <section class="card">
         <div class="stack">
           <p class="eyebrow">Quick join</p>
           <h1>Join with a group code.</h1>
           <p class="helper-text">Enter the custom code shared by your treasurer.</p>
         </div>
-        <!-- PHP TODO: Submit to php/groups/join.php. Validate join_code against groups.join_code, require session user, prevent duplicate group_members rows, and return invalid/unauthorized errors. -->
         <form class="stack space-top" data-join-form action="../php/groups/join.php" method="post">
           <div class="field-group">
             <label for="join-code">Join code</label>
@@ -55,7 +66,9 @@
           </div>
         </div>
       </section>
-    </main>
+        </section>
+      </main>
+    </div>
   </div>
 
   <script type="module" src="../js/main.js">

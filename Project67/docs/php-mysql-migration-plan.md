@@ -45,10 +45,10 @@ Implement `php/auth/logout.php`:
 ## Contributions And Payments
 
 - `php/contributions/list.php`: return SQL-scoped rows for the active group and role.
-- `php/contributions/create.php`: treasurer-only insert using existing fields `group_id`, `title`, `amount`, `type`, `frequency`.
+- `php/contributions/create.php`: treasurer-only insert using `group_id`, `title`, `amount`, `type`, `frequency`, `due_date`, and `notes`.
 - `php/payments/mark-paid.php`: member updates only their own payment row to pending.
 - `php/payments/confirm.php`: treasurer confirms pending rows and sets `confirmed_at`, `confirmed_by`.
-- `php/payments/reject.php`: treasurer rejects a row. Rejection notes need an optional schema extension.
+- `php/payments/reject.php`: treasurer rejects a row.
 
 ## Error Handling
 
@@ -88,14 +88,8 @@ Frontend role-aware UI is display only. PHP must enforce:
 - group code visibility is controlled,
 - hidden inputs and client role values are not trusted.
 
-## Remaining Backend TODOs
+## Remaining Improvements
 
-1. Complete database connection handling with PDO prepared statements.
-2. Implement auth/session endpoints.
-3. Add CSRF token generation and validation for POST forms.
-4. Wire `js/services/*` to `fetchJson`.
-5. Implement group code join and active group selection.
-6. Implement contribution creation/listing.
-7. Implement payment mark/confirm/reject.
-8. Implement history and member SQL filters.
-9. Add backend tests for authorization and validation failures.
+1. Add CSRF token generation and validation for POST forms if required by the instructor.
+2. Add pagination for long history/member reports.
+3. Add automated browser tests for authorization and validation failures.

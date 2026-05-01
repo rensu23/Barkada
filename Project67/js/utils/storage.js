@@ -13,18 +13,15 @@ const emptyDatabaseShape = {
 */
 
 export function getState() {
-  return structuredClone(emptyDatabaseShape);
+  return structuredClone(window.BARKADA_STATE || emptyDatabaseShape);
 }
 
 export function saveState(state) {
-  // PHP TODO: Remove callers of saveState as each POST action moves to PHP.
   // This no-op intentionally prevents frontend persistence from pretending to be MySQL.
   return state;
 }
 
 export function getSession() {
-  // PHP TODO: Authenticated pages should render a safe window.BARKADA_SESSION
-  // object from php/auth/session.php or server-side PHP before this JS runs.
   return window.BARKADA_SESSION || null;
 }
 
@@ -34,15 +31,16 @@ export function buildSessionForUser(user) {
 }
 
 export function saveSession(session) {
-  // PHP TODO: Login should call php/auth/login.php, regenerate the PHP session,
-  // and never store production auth state in browser storage.
+  // Login state is owned by PHP sessions. This function is kept for older imports.
   return session;
 }
 
 export function updateSession(patch) {
-  return { ...(getSession() || {}), ...patch };
+  window.BARKADA_SESSION = { ...(getSession() || {}), ...patch };
+  return window.BARKADA_SESSION;
 }
 
 export function clearSession() {
-  // PHP TODO: Sign-out belongs in php/auth/logout.php with session_destroy().
+  window.BARKADA_SESSION = null;
+  window.BARKADA_STATE = structuredClone(emptyDatabaseShape);
 }
