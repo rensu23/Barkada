@@ -57,6 +57,26 @@
     </main>
   </div>
 
-  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/main.js">
+    import { login } from "./js/services/auth.service.js";
+
+  document.querySelector("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.querySelector("#email").value;
+    const password = document.querySelector("#password").value;
+    const remember = document.querySelector("#rememberMe").checked;
+
+    const res = await login(email, password, remember);
+
+    if (res.success) {
+        window.location.href = "dashboard.html";
+    } else {
+        alert(res.message);
+    }
+});
+
+
+  </script>
 </body>
 </html>
