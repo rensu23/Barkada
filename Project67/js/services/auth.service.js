@@ -18,19 +18,20 @@ export async function loginUser(email, password) {
   // PHP TODO: POST email/password to php/auth/login.php.
   // Server must query users.email, verify users.password with password_verify,
   // regenerate the PHP session, and return safe user/session details.
-    const res = await fetch("php/auth/login.php", {
+    const data = await apiRequest("php/auth/login.php", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
-  return await res.json();
+  if (data.user) updateSession(data.user);
+  return data;
 }
 
 export async function registerUser(payload) {
-  const response = await fetch("../php/auth/register.php", {
+  // Path fixed: removed "../" because php is a sibling to the js folder
+  const response = await fetch("php/auth/register.php", {
     method: "POST",
-    body: new URLSearchParams(payload)
+    body: JSON.stringify(payload) // Using JSON to match your professional apiRequest style
   });
 
   const data = await response.json();
@@ -74,7 +75,6 @@ export async function getCurrentSession() {
 }
 
 export async function logoutUser() {
-  clearSession();
   // PHP TODO: POST to php/auth/logout.php and redirect after session_destroy().
 
   try {
