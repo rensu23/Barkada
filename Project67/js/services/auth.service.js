@@ -24,9 +24,7 @@ export async function loginUser(email, password) {
     body: JSON.stringify({ email, password }),
   });
 
-  const data = await res.json();
-  if (res.ok) updateSession(data.user); // Added to sync local state
-  return data;
+  return await res.json();
 }
 
 export async function registerUser(formData) {
