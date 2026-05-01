@@ -9,6 +9,7 @@
 
 require_once __DIR__ . '/../helpers/validators.php';
 
+session_start();
 header('Content-Type: application/json');
 
 // Secure Configuration
