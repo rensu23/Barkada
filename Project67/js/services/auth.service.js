@@ -5,6 +5,13 @@ export async function loginUser(email, password) {
   // PHP TODO: POST email/password to php/auth/login.php.
   // Server must query users.email, verify users.password with password_verify,
   // regenerate the PHP session, and return safe user/session details.
+    const res = await fetch("php/auth/login.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  return await res.json();
 }
 
 export async function registerUser(formData) {
