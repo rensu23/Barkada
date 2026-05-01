@@ -9,23 +9,16 @@
  * - Catch PDOException and return a safe server error; do not expose secrets.
  */
 
-$dbConfig = [
-    'host' => getenv('BARKADA_DB_HOST') ?: '127.0.0.1',
-    'port' => getenv('BARKADA_DB_PORT') ?: '3306',
-    'database' => 'barkada_db',
-    'username' => getenv('BARKADA_DB_USER') ?: '',
-    'password' => getenv('BARKADA_DB_PASS') ?: '',
-];
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "barkada_db";
 
-/*
-$pdo = new PDO(
-    "mysql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['database']};charset=utf8mb4",
-    $dbConfig['username'],
-    $dbConfig['password'],
-    [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ]
-);
-*/
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$conn->set_charset("utf8mb4");
+?>
