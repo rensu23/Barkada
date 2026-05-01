@@ -14,10 +14,22 @@ export async function loginUser(email, password) {
   return await res.json();
 }
 
-export async function registerUser(formData) {
+export async function registerUser(payload) {
   // PHP TODO: POST to php/auth/register.php. Validate name/email/password,
   // check duplicate users.email, hash with password_hash, insert users row.
   throw backendNotReady("php/auth/register.php");
+  const response = await fetch("../php/auth/register.php", {
+    method: "POST",
+    body: new URLSearchParams(payload)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || data.error) {
+    throw new Error(data.error || "Registration failed");
+  }
+
+  return data;
 }
 
 export async function requestPasswordReset(formData) {
