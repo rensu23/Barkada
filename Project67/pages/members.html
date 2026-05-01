@@ -22,15 +22,14 @@
           <div class="page-header-copy">
             <p class="eyebrow">Members</p>
             <h1>Member list and quick filters</h1>
-            <p class="helper-text">PHP TODO: Load members from group_members joined to users for the active group. Hide restricted actions completely for non-treasurers.</p>
+            <p class="helper-text">View members and payment summaries for the active group.</p>
           </div>
         </section>
-        <!-- PHP TODO: Send filters as query parameters to php/groups/members.php and apply SQL-backed role/status/name filtering. -->
         <section class="card page-section">
           <div class="filter-bar">
             <div class="field-group">
               <label for="members-search">Search members</label>
-              <input id="members-search" type="search" data-members-search placeholder="Search by member name">
+              <input id="members-search" type="search" data-members-search placeholder="Search by name or email">
             </div>
             <div class="field-group">
               <label for="members-role-filter">Role filter</label>
@@ -41,8 +40,11 @@
               <select id="members-status-filter" data-members-status-filter><option>All</option><option>Paid</option><option>Pending</option><option>Not Paid</option><option>Rejected</option></select>
             </div>
           </div>
+          <div class="inline-actions space-top">
+            <button class="button-secondary" type="button" data-members-clear>Clear filters</button>
+            <p class="helper-text" data-members-count></p>
+          </div>
         </section>
-        <!-- PHP TODO: Treasurer-only management actions require server-side authorization; never trust frontend role values. -->
         <section class="member-list page-section" data-members-list></section>
       </main>
     </div>

@@ -3,21 +3,38 @@
   Keep this file free of sample records and local persistence.
 */
 
-export function backendNotReady(endpoint) {
-  return new Error(`${endpoint} is ready to connect, but the PHP/MySQL implementation is not wired yet.`);
+export function apiUrl(endpoint) {
+  return new URL(`../../php/${endpoint}`, import.meta.url).href;
 }
 
 export async function fetchJson(endpoint, options = {}) {
-  // PHP TODO: Use this wrapper once endpoints return JSON with consistent errors.
   const response = await fetch(endpoint, {
     credentials: "same-origin",
     headers: { Accept: "application/json", ...(options.headers || {}) },
     ...options,
   });
 
-  if (!response.ok) {
-    throw new Error(`Request failed with HTTP ${response.status}.`);
+  const data = await response.json().catch(() => ({}));
+
+  if (!Object.keys(data).length) {
+    throw new Error("The server returned an invalid response. Please check PHP errors and database setup.");
   }
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || `Request failed with HTTP ${response.status}.`);
+  }
+
+  if (data.success === false) {
+    throw new Error(data.message || data.error || "Request failed.");
+  }
+
+  return data;
+}
+
+export async function postJson(endpoint, payload = {}) {
+  return fetchJson(apiUrl(endpoint), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 }

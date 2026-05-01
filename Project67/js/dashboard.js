@@ -277,5 +277,5 @@ export async function initDashboardPage() {
       </article>
     `,
     )
-    .join("") : `<article class="empty-card"><h3>No activity loaded yet</h3><p class="helper-text">PHP TODO: Fetch recent payment_records joined to contributions/groups after session authorization.</p></article>`;
+    .join("") : `<article class="empty-card"><h3>No activity yet</h3><p class="helper-text">Recent payment updates will appear after members start marking dues.</p></article>`;
 }

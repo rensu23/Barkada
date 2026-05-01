@@ -1,14 +1,13 @@
-import { backendNotReady } from "./api.service.js";
+import { apiUrl, fetchJson, postJson } from "./api.service.js";
 
 export async function getUserProfile(userId) {
-  // PHP TODO: GET php/users/profile.php for the current session user.
-  // Do not return users.password.
-  return null;
+  const data = await fetchJson(apiUrl("users/profile.php"));
+  return data.profile || null;
 }
 
 export async function updateUserProfile(userId, payload) {
-  // PHP TODO: POST to php/users/update-profile.php with CSRF protection.
-  throw backendNotReady("php/users/update-profile.php");
+  const data = await postJson("users/update-profile.php", payload);
+  return data.profile || null;
 }
 
 export async function getUsers() {

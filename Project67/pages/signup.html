@@ -28,7 +28,6 @@
           <h1>Sign up</h1>
           <p class="helper-text">Use your real name so treasurers can recognize you in member lists and confirmations.</p>
         </div>
-        <!-- PHP TODO: Submit to php/auth/register.php. Validate fields, check duplicate users.email, hash password with password_hash, insert users row, then redirect to join/create group. -->
         <form class="stack space-top" data-signup-form action="../php/auth/register.php" method="post" novalidate>
           <div class="field-group">
             <label for="signup-name">Full name</label>
@@ -46,7 +45,7 @@
               <input id="signup-password" name="password" type="password" placeholder="At least 8 characters">
               <button class="input-action" type="button" data-password-toggle="signup-password">Show</button>
             </div>
-            <p class="helper-text">PHP TODO: Enforce password rules server-side and store only the password hash in users.password.</p>
+            <p class="helper-text">Use at least 8 characters. Passwords are saved as hashes.</p>
             <p class="error-text" data-error-for="password"></p>
           </div>
           <div class="field-group">

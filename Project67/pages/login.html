@@ -29,9 +29,7 @@
           <h1>Log in</h1>
           <p class="helper-text">Use your email and password to open your contribution dashboard.</p>
         </div>
-        <!-- PHP TODO: If already authenticated through php/auth/session.php, redirect away from login before rendering this page. -->
         <form class="stack space-top" data-login-form action="../php/auth/login.php" method="post" novalidate>
-          <!-- PHP TODO: Validate email/password, query users.email, verify users.password hash, regenerate session, and redirect by active group/role from group_members. -->
           <div class="field-group">
             <label for="login-email">Email</label>
             <input id="login-email" type="email" name="email" placeholder="you@example.com">
@@ -47,7 +45,7 @@
           </div>
           <div class="field-grid">
             <label><input type="checkbox" name="remember_me"> Remember me on this device</label>
-            <p class="helper-text">PHP TODO: Implement remember-me only with a secure server-side token table; do not store auth state in browser storage.</p>
+            <p class="helper-text">Your login is handled by a PHP session on this device.</p>
           </div>
           <button class="button button-block" type="submit">Log in</button>
           <p class="helper-text">Forgot your password? <a class="page-link" href="./forgot-password.html">Reset it here</a>.</p>

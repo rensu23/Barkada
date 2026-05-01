@@ -26,7 +26,6 @@
           </div>
         </section>
         <section class="grid-2 page-section">
-          <!-- PHP TODO: Submit to php/groups/create.php. Require logged-in user, validate fields, insert groups, then insert creator into group_members as Treasurer in one transaction. -->
           <form class="card stack" data-group-form action="../php/groups/create.php" method="post">
             <div class="form-grid">
               <div class="field-group">
@@ -58,7 +57,7 @@
               <div class="detail-list space-top">
                 <div class="summary-row"><span>Group code</span><strong>Share the custom join_code only with allowed members.</strong></div>
                 <div class="summary-row"><span>Copy action</span><strong>Available on group details</strong></div>
-                <div class="summary-row"><span>Backend validation</span><strong>groups.join_code + duplicate group_members check</strong></div>
+                <div class="summary-row"><span>Validation</span><strong>Unique group code and creator as treasurer</strong></div>
               </div>
             </article>
             <article class="callout"><span>Unsaved changes</span><p class="helper-text">Show a browser prompt later if your team wants stronger unsaved-change protection.</p></article>

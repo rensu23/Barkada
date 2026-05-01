@@ -1,7 +1,8 @@
 import { createContribution, getContributionHistory, getContributions, getRecurringCycles } from "./services/contribution.service.js";
 import { getCurrentSession } from "./services/auth.service.js";
+import { markPaymentAsDone } from "./services/payment.service.js";
 import { PAYMENT_STATUS } from "./utils/constants.js";
-import { formatCurrency, formatShortDateTime } from "./utils/formatters.js";
+import { formatCurrency, formatDate, formatShortDateTime } from "./utils/formatters.js";
 import { showToast } from "./ui.js";
 
 function paymentClass(status) {
@@ -21,6 +22,7 @@ function currentQueryFromControls() {
     search: document.querySelector("[data-contributions-search]")?.value || "",
     type: document.querySelector("[data-contributions-type]")?.value || "",
     group_id: document.querySelector("[data-contributions-group]")?.value || "",
+    status: document.querySelector("[data-contributions-status]")?.value || "",
     sort: document.querySelector("[data-contributions-sort]")?.value || "due-soon",
   };
 }
@@ -31,20 +33,43 @@ export async function initContributionsPage() {
   const session = await getCurrentSession();
 
   if (page === "contributions") {
-    const contributions = await getContributions();
+    let contributions = await getContributions();
     const list = document.querySelector("[data-contributions-list]");
     const form = document.querySelector("[data-contribution-form]");
     const groupFilter = document.querySelector("[data-contributions-group]");
-    const filters = document.querySelectorAll("[data-contributions-search], [data-contributions-type], [data-contributions-group], [data-contributions-sort]");
+    const filters = document.querySelectorAll("[data-contributions-search], [data-contributions-type], [data-contributions-group], [data-contributions-status], [data-contributions-sort]");
+    const treasurerGroups = (session?.groups || []).filter((group) => group.member_role === "Treasurer");
+    const submitButton = form?.querySelector("button[type='submit']");
+    const createPanel = document.querySelector("[data-contribution-create-panel]");
 
-    if (groupFilter && !groupFilter.children.length) {
-      groupFilter.innerHTML = `<option value="">All groups</option>`;
+    if (groupFilter) {
+      groupFilter.innerHTML = `<option value="">All groups</option>${(session?.groups || []).map((group) => `<option value="${group.group_id}">${group.group_name}</option>`).join("")}`;
     }
 
-    const renderContributions = () => {
-      const query = currentQueryFromControls();
+    const groupSelect = form?.querySelector("select[name='group_id']");
+    if (groupSelect) {
+      groupSelect.innerHTML = treasurerGroups.length
+        ? treasurerGroups.map((group) => `<option value="${group.group_id}">${group.group_name}</option>`).join("")
+        : `<option value="">You need to be a group treasurer</option>`;
+      groupSelect.disabled = treasurerGroups.length === 0;
+    }
+    if (submitButton && treasurerGroups.length === 0) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Treasurer group required";
+    }
+    if (createPanel && treasurerGroups.length === 0) {
+      createPanel.innerHTML = `
+        <summary>Create contribution</summary>
+        <article class="empty-card">
+          <h3>You need to be a group treasurer to create contributions.</h3>
+          <p class="helper-text">Members can still view dues and mark their own payments.</p>
+        </article>
+      `;
+    }
+
+    const renderContributions = async () => {
       if (!contributions.length) {
-        renderEmpty(list, "No contributions loaded", "PHP TODO: Use query parameters for SQL-backed search/type/group/sort against contributions joined to payment_records.");
+        renderEmpty(list, "No contributions yet", "Create a contribution if you are the group treasurer, or wait for your treasurer to add one.");
         return;
       }
 
@@ -56,26 +81,54 @@ export async function initContributionsPage() {
               <h3>${item.title}</h3>
               <p class="helper-text">${item.group?.group_name || "Group"} - ${formatCurrency(item.amount)}</p>
             </div>
-            <span class="status-chip status-unpaid">${item.status || "SQL status"}</span>
+            <span class="status-chip ${paymentClass(item.status)}">${item.status || "Not Paid"}</span>
           </div>
-          <p class="helper-text">Backend must scope this row by group_members and payment_records before actions are rendered.</p>
+          <div class="detail-list">
+            <div class="summary-row"><span>Frequency</span><strong>${item.frequency}</strong></div>
+            <div class="summary-row"><span>Due date</span><strong>${formatDate(item.due_date)}</strong></div>
+            <div class="summary-row"><span>Your role</span><strong>${item.member_role}</strong></div>
+          </div>
+          ${item.notes ? `<p class="helper-text space-top">${item.notes}</p>` : ""}
+          ${item.member_role !== "Treasurer" && item.status !== "Paid"
+            ? `<button class="button space-top" type="button" data-mark-paid="${item.payment_id || ""}" data-contribution-id="${item.contribution_id}">Mark as paid</button>`
+            : ""}
         </article>
       `).join("");
 
-      // UI only: controls stay responsive while PHP wiring is pending.
-      list.dataset.pendingSqlQuery = JSON.stringify(query);
+      list.querySelectorAll("[data-mark-paid]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          try {
+            await markPaymentAsDone(button.dataset.markPaid, button.dataset.contributionId);
+            showToast("Payment marked for treasurer review.");
+            contributions = await getContributions("", currentQueryFromControls());
+            await renderContributions();
+          } catch (error) {
+            showToast(error.message, "error");
+          }
+        });
+      });
     };
 
-    renderContributions();
-    filters.forEach((control) => control.addEventListener("input", renderContributions));
-    filters.forEach((control) => control.addEventListener("change", renderContributions));
+    await renderContributions();
+    const refreshList = async () => {
+      contributions = await getContributions("", currentQueryFromControls());
+      await renderContributions();
+    };
+    filters.forEach((control) => control.addEventListener("input", refreshList));
+    filters.forEach((control) => control.addEventListener("change", refreshList));
 
     form?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const payload = Object.fromEntries(new FormData(form).entries());
       try {
+        if (!payload.group_id) {
+          throw new Error("Please select a group where you are the treasurer before creating a contribution.");
+        }
         await createContribution(payload);
         showToast("Contribution created.");
+        contributions = await getContributions("", currentQueryFromControls());
+        await renderContributions();
+        form.reset();
       } catch (error) {
         showToast(error.message, "error");
       }
@@ -86,8 +139,17 @@ export async function initContributionsPage() {
     const cycles = await getRecurringCycles(session?.user_id);
     const list = document.querySelector("[data-cycle-list]");
     if (!cycles.length) {
-      renderEmpty(list, "No recurring cycles loaded", "PHP TODO: Filter contributions.type/frequency for recurring rows. The current schema has no separate cycle schedule table.");
+      renderEmpty(list, "No recurring contributions", "Recurring rows come from contributions.type and contributions.frequency.");
+      return;
     }
+    list.innerHTML = cycles.map((item) => `
+      <article class="card">
+        <p class="eyebrow">${item.frequency}</p>
+        <h3>${item.title}</h3>
+        <p class="helper-text">${item.group_name} - ${formatCurrency(item.amount)} - Due ${formatDate(item.due_date)}</p>
+        ${item.notes ? `<p class="helper-text">${item.notes}</p>` : ""}
+      </article>
+    `).join("");
   }
 
   if (page === "history") {
@@ -95,8 +157,8 @@ export async function initContributionsPage() {
     const table = document.querySelector("[data-history-table]");
     const mobileList = document.querySelector("[data-history-list]");
     if (!history.length) {
-      if (table) table.innerHTML = `<tr><td colspan="5">No payment history loaded. PHP TODO: Query payment_records joined to contributions and groups, ordered by latest update.</td></tr>`;
-      renderEmpty(mobileList, "No payment history loaded", "PHP TODO: Members see only their own payment_records; treasurers may filter by group/member/contribution/status.");
+      if (table) table.innerHTML = `<tr><td colspan="5">No payment history yet.</td></tr>`;
+      renderEmpty(mobileList, "No payment history yet", "Payment records will appear here after dues are created.");
       return;
     }
 

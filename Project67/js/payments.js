@@ -12,7 +12,7 @@ export async function initPaymentsPage() {
   const pending = await getPendingPayments(session?.active_group_id);
 
   if (!pending.length) {
-    list.innerHTML = `<article class="empty-card"><h3>No pending confirmations loaded</h3><p class="helper-text">PHP TODO: Treasurer-only query for payment_records.status = Pending joined to users, contributions, and groups. Server must reject member access.</p></article>`;
+    list.innerHTML = `<article class="empty-card"><h3>No pending confirmations</h3><p class="helper-text">Payment claims marked by members will appear here for treasurer review.</p></article>`;
     return;
   }
 
@@ -38,6 +38,8 @@ export async function initPaymentsPage() {
     button.addEventListener("click", async () => {
       try {
         await confirmPayment(button.dataset.confirmPayment, session?.user_id);
+        showToast("Payment confirmed.");
+        window.setTimeout(() => window.location.reload(), 350);
       } catch (error) {
         showToast(error.message, "error");
       }
@@ -61,6 +63,8 @@ export async function initPaymentsPage() {
         try {
           const note = new FormData(event.currentTarget).get("note");
           await rejectPayment(button.dataset.rejectPayment, session?.user_id, note);
+          showToast("Payment rejected.");
+          window.setTimeout(() => window.location.reload(), 350);
         } catch (error) {
           showToast(error.message, "error");
         }

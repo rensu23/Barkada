@@ -22,11 +22,10 @@
           <div class="page-header-copy">
             <p class="eyebrow">Edit group</p>
             <h1>Update group details</h1>
-            <p class="helper-text">PHP TODO: Load the requested group by group_id only after checking group_members.role = Treasurer.</p>
+            <p class="helper-text">Only the treasurer of this group can save these changes.</p>
           </div>
         </section>
         <section class="grid-2 page-section">
-          <!-- PHP TODO: Submit to php/groups/update.php with CSRF token. Server must authorize treasurer role and update only groups table fields. -->
           <form class="card stack" data-group-form action="../php/groups/update.php" method="post">
             <div class="form-grid">
               <div class="field-group"><label>group_name<input name="group_name" type="text"></label></div>

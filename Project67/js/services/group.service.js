@@ -1,37 +1,38 @@
-import { backendNotReady } from "./api.service.js";
+import { apiUrl, fetchJson, postJson } from "./api.service.js";
+import { updateSession } from "../utils/storage.js";
 
 export async function getGroupsForUser(userId) {
-  // PHP TODO: GET php/groups/list.php for the session user.
-  // Query group_members joined to groups; return role as member_role for UI display.
-  return [];
+  const data = await fetchJson(apiUrl("groups/list.php"));
+  return data.groups || [];
 }
 
 export async function getGroupById(groupId) {
-  // PHP TODO: GET php/groups/detail.php?group_id=...
-  // Server must verify the current user belongs to this group before returning it.
-  return null;
+  const data = await fetchJson(`${apiUrl("groups/detail.php")}?group_id=${encodeURIComponent(groupId)}`);
+  return data.group || null;
 }
 
 export async function createGroup(payload, currentUserId) {
-  // PHP TODO: POST to php/groups/create.php. Insert groups, then group_members
-  // role Treasurer in one transaction using the authenticated users.user_id.
-  throw backendNotReady("php/groups/create.php");
+  return postJson("groups/create.php", payload);
 }
 
 export async function updateGroup(groupId, payload) {
-  // PHP TODO: POST to php/groups/update.php. Check group_members.role = Treasurer.
-  throw backendNotReady("php/groups/update.php");
+  return postJson("groups/update.php", { ...payload, group_id: Number(groupId) });
 }
 
 export async function joinGroupByCode(joinCode, userId) {
-  // PHP TODO: POST join_code to php/groups/join.php.
-  // Look up groups.join_code, prevent duplicate group_members rows, and return
-  // invalid/unauthorized/duplicate errors from the server.
-  throw backendNotReady("php/groups/join.php");
+  const data = await postJson("groups/join.php", { join_code: joinCode });
+  if (data.user) updateSession(data.user);
+  return data;
 }
 
-export async function getMembersForGroup(groupId) {
-  // PHP TODO: GET php/groups/members.php?group_id=...
-  // Join group_members to users and aggregate payment_records through contributions.
-  return [];
+export async function getMembersForGroup(groupId, filters = {}) {
+  const params = new URLSearchParams();
+  if (groupId) params.set("group_id", groupId);
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value && value !== "All") params.set(key, value);
+  });
+  const suffix = params.toString() ? `?${params}` : "";
+  const url = `${apiUrl("groups/members.php")}${suffix}`;
+  const data = await fetchJson(url);
+  return data.members || [];
 }

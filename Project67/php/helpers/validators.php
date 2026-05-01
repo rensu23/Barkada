@@ -1,12 +1,6 @@
 <?php
 /**
- * Simple validation helper notes.
- *
- * TODO:
- * - Add reusable checks for required fields, valid email, and allowed status values.
- * - Reuse these functions across auth, groups, contributions, and payments endpoints.
- * - Validate numeric IDs from the request before using them in SQL.
- * - Validate payment status values against the statuses your team stores in payment_records.status.
+ * Simple validation helper class kept for pages that prefer object-style checks.
  */
 
 namespace Helpers;
@@ -48,8 +42,8 @@ class Validator {
     /**Validates payment status against allowed values
     */
     public function paymentStatus(string $status): bool {
-        $allowed = ['pending', 'completed', 'failed', 'refunded'];
-        if (!in_array(strtolower($status), $allowed)) {
+        $allowed = ['Not Paid', 'Pending', 'Paid', 'Rejected'];
+        if (!in_array($status, $allowed, true)) {
             $this->errors['status'] = "Invalid status value.";
             return false;
         }

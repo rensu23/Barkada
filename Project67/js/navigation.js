@@ -69,7 +69,8 @@ function publicHeaderTemplate() {
 function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
   const links = NAV_ITEMS[role] || NAV_ITEMS.member;
   const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
-  const displayName = session?.name || "Backend user";
+  const displayName = session?.name || "Loading user";
+  const groupText = activeGroup ? `${activeGroup.group_name} - ${activeGroup.member_role}` : "No active group yet";
   return `
     <a class="brand" href="../pages/dashboard.html">
       <span class="brand-mark">B</span>
@@ -78,7 +79,7 @@ function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
     <div class="spotlight-card">
       <p class="eyebrow">${role === "treasurer" ? "Treasurer workspace" : "Member workspace"}</p>
       <h3>${displayName}</h3>
-      <p class="helper-text">${activeGroup ? `${activeGroup.group_name} - ${activeGroup.member_role}` : "PHP session and groups not loaded yet."}</p>
+      <p class="helper-text">${groupText}</p>
     </div>
     <nav class="surface-list" aria-label="Main navigation">
       ${groupedLinks(links)
@@ -97,7 +98,7 @@ function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
 }
 
 function appTopbarTemplate(currentPage, session, groups, activeGroupId, role) {
-  const displayName = session?.name || "Backend user";
+  const displayName = session?.name || "Loading user";
   const options = groups
     .map(
       (group) => `<option value="${group.group_id}" ${Number(group.group_id) === Number(activeGroupId) ? "selected" : ""}>${group.group_name} - ${group.member_role}</option>`,
@@ -152,7 +153,7 @@ function bottomNavTemplate(currentPage) {
 function mobileMenuTemplate(role, currentPage, session, groups, activeGroupId) {
   const links = NAV_ITEMS[role] || NAV_ITEMS.member;
   const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
-  const displayName = session?.name || "Backend user";
+  const displayName = session?.name || "Loading user";
   return `
     <div class="mobile-menu-backdrop" data-mobile-menu aria-hidden="true">
       <aside class="mobile-menu-panel" aria-label="Mobile menu">

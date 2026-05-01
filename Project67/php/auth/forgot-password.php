@@ -1,57 +1,25 @@
 <?php
-require_once '../config/database.php';
-require_once '../helpers/response.php';
+/**
+ * Password help endpoint.
+ * The SQL file has no reset-token table, so this only verifies the email safely.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . "/../helpers/auth-guard.php";
 
-// Get input
-$data = json_decode(file_get_contents("php://input"), true);
+requirePost();
+$data = readRequestData();
+$email = cleanText($data["email"] ?? "");
 
-// fallback if not JSON (form submit)
-if (!$data) {
-    $data = $_POST;
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    jsonResponse(["success" => false, "message" => "Enter a valid email address."], 422);
 }
 
-if (!isset($data['email'])) {
-    echo json_encode(["error" => "Email is required"]);
-    exit;
-}
+$stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->close();
 
-$email = trim($data['email']);
-
-try {
-    $db = $conn;
-
-    // Check if user exists
-    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    if (!$user) {
-        echo json_encode(["error" => "Email not found"]);
-        exit;
-    }
-
-    // Generate secure token
-    $token = bin2hex(random_bytes(32));
-    $expires = date("Y-m-d H:i:s", strtotime("+1 hour"));
-
-    // Save token
-    $stmt = $db->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $email, $token, $expires);
-    $stmt->execute();
-
-    // TEMP: Return reset link
-    $resetLink = "http://localhost/reset-password.html?token=" . $token;
-
-    echo json_encode([
-        "message" => "Reset link generated",
-        "reset_link" => $resetLink
-    ]);
-
-} catch (Exception $e) {
-    echo json_encode(["error" => "Server error"]);
-}
+jsonResponse([
+    "success" => true,
+    "message" => "If the email exists, you may continue to the reset password page."
+]);

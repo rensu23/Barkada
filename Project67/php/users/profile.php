@@ -1,8 +1,14 @@
 <?php
 /**
- * GET /users/profile.php
- *
- * TODO:
- * - Return current user details from users table.
- * - Avoid sending password fields back to the frontend.
+ * Returns the current user's profile without password data.
  */
+
+require_once __DIR__ . "/../helpers/auth-guard.php";
+
+$userId = requireLogin();
+$user = fetchSessionUser($conn, $userId);
+
+jsonResponse([
+    "success" => true,
+    "profile" => $user
+]);

@@ -1,10 +1,6 @@
 <?php
 /**
- * App-level configuration stub.
- *
- * TODO:
- * - Move shared constants here when backend routes are ready.
- * - Add environment-based settings if your team needs them later.
+ * App-level configuration.
  */
 
 return [

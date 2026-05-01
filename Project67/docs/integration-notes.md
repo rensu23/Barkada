@@ -2,9 +2,9 @@
 
 ## Current Architecture
 
-- Frontend pages are static HTML/CSS with JavaScript used for UI behavior and empty-state rendering.
-- JavaScript service files in `js/services/` are thin adapters. They do not contain users, groups, contributions, members, payments, or history records.
-- Authentication must come from PHP sessions, not browser storage.
+- Frontend pages are static HTML/CSS with JavaScript used for UI behavior and PHP endpoint calls.
+- JavaScript service files in `js/services/` are thin adapters for JSON endpoints.
+- Authentication comes from PHP sessions, not browser storage.
 - Theme preference may remain client-side because `barkada_db.sql` has no preference column.
 
 ## Schema Source Of Truth
@@ -14,7 +14,7 @@ Use `../barkada_db.sql` as the required database contract:
 - `users`: account identity with `user_id`, `name`, `email`, `password`, `created_at`.
 - `groups`: group metadata with `group_id`, `group_name`, `description`, `treasurer_id`, `target_amount`, `deadline`, `join_code`, `created_at`.
 - `group_members`: membership and per-group role with `member_id`, `user_id`, `group_id`, `role`, `joined_at`.
-- `contributions`: contribution definitions with `contribution_id`, `group_id`, `title`, `amount`, `type`, `frequency`.
+- `contributions`: contribution definitions with `contribution_id`, `group_id`, `title`, `amount`, `type`, `frequency`, `due_date`, `notes`.
 - `payment_records`: member payment status with `payment_id`, `user_id`, `contribution_id`, `status`, `marked_at`, `confirmed_at`, `confirmed_by`.
 
 ## Endpoint Map
@@ -33,13 +33,13 @@ Use `../barkada_db.sql` as the required database contract:
 - `php/contributions/create.php`: treasurer-only insert into `contributions`.
 - `php/payments/mark-paid.php`: member-only own-row update to pending status.
 - `php/payments/confirm.php`: treasurer-only update to confirmed/paid.
-- `php/payments/reject.php`: treasurer-only update to rejected status. Rejection notes require an optional schema extension.
+- `php/payments/reject.php`: treasurer-only update to rejected status.
 - `php/payments/history.php`: payment history from `payment_records` joined with `contributions` and `groups`.
 - `php/users/profile.php` and `php/users/update-profile.php`: current user profile read/update.
 
 ## Security Plan
 
-- Use PDO or MySQLi prepared statements for every SQL query.
+- Use mysqli prepared statements for every SQL query with user input.
 - Escape rendered HTML with `htmlspecialchars`.
 - Regenerate session ID after login.
 - Add CSRF tokens to all POST forms.
@@ -64,12 +64,6 @@ Move filters into GET parameters handled by SQL:
 - history: group, member, contribution, status, latest update.
 - dashboard: aggregate by active group and `payment_records.status`.
 
-## Next Steps
+## Current Notes
 
-1. Complete `php/config/database.php` with local credentials outside source control if needed.
-2. Implement auth endpoints and PHP session guards.
-3. Wire frontend services to JSON endpoints with `fetchJson`.
-4. Implement groups and group code join.
-5. Implement contributions and payment status updates.
-6. Implement treasurer confirmation and rejection.
-7. Add pagination and server-side filters for history/report pages.
+Core auth, groups, contributions, payments, profile, and dashboard data are connected. Future improvements can add CSRF tokens, pagination, and richer report filters if the project scope requires them.

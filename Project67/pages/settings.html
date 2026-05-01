@@ -30,7 +30,7 @@
                 <option value="hybrid">Hybrid</option>
               </select>
             </div>
-            <p class="helper-text">PHP TODO: Role access must come from group_members for the active group; this disabled control is display-only UX.</p>
+            <p class="helper-text">Your role comes from your membership in the active group.</p>
             <button class="button-secondary" type="button" data-theme-toggle><span data-theme-label>Dark mode</span></button>
             <div class="accordion">
               <button type="button">Notification preferences</button>
@@ -45,7 +45,6 @@
               <div class="summary-row"><span>Security section</span><strong>Password reset requires a future reset-token table</strong></div>
               <div class="summary-row"><span>Unsaved changes warning</span><strong>Recommended for future form-heavy pages</strong></div>
             </div>
-            <!-- PHP TODO: Log out through php/auth/logout.php, destroy session variables, and prevent cached authenticated pages where needed. -->
             <button class="button-danger" type="button" data-logout>Log out</button>
           </article>
         </section>

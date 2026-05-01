@@ -1,26 +1,26 @@
-import { backendNotReady } from "./api.service.js";
+import { apiUrl, fetchJson, postJson } from "./api.service.js";
 
-export async function getContributions(filterGroupId = "") {
-  // PHP TODO: GET php/contributions/list.php with optional group_id/status/type/sort.
-  // Join contributions to groups and payment_records only after authorization.
-  return [];
+export async function getContributions(filterGroupId = "", query = {}) {
+  const params = new URLSearchParams();
+  if (filterGroupId) params.set("group_id", filterGroupId);
+  Object.entries(query).forEach(([key, value]) => {
+    if (value && value !== "All") params.set(key, value);
+  });
+  const suffix = params.toString() ? `?${params}` : "";
+  const data = await fetchJson(`${apiUrl("contributions/list.php")}${suffix}`);
+  return data.contributions || [];
 }
 
 export async function createContribution(payload) {
-  // PHP TODO: POST to php/contributions/create.php.
-  // Validate group_id, title, amount, type, frequency; authorize treasurer role.
-  // Current schema has no due_date or notes column, so store only schema fields
-  // unless the schema is intentionally extended later.
-  throw backendNotReady("php/contributions/create.php");
+  return postJson("contributions/create.php", payload);
 }
 
 export async function getContributionHistory(userId) {
-  // PHP TODO: GET php/payments/history.php.
-  // Members should receive only their own payment_records; treasurers may filter by group.
-  return [];
+  const data = await fetchJson(apiUrl("payments/history.php"));
+  return data.history || [];
 }
 
 export async function getRecurringCycles(userId) {
-  // Schema note: contributions.frequency exists, but no separate cycle rows exist.
-  return [];
+  const data = await fetchJson(apiUrl("contributions/recurring.php"));
+  return data.cycles || [];
 }
