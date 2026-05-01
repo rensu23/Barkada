@@ -18,7 +18,7 @@ export async function loginUser(email, password) {
   // PHP TODO: POST email/password to php/auth/login.php.
   // Server must query users.email, verify users.password with password_verify,
   // regenerate the PHP session, and return safe user/session details.
-    const data = await apiRequest("php/auth/login.php", {
+    const data = await apiRequest("/Project67/php/auth/login.php", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
