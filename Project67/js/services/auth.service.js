@@ -18,17 +18,28 @@ export async function loginUser(email, password) {
   // PHP TODO: POST email/password to php/auth/login.php.
   // Server must query users.email, verify users.password with password_verify,
   // regenerate the PHP session, and return safe user/session details.
+    const res = await fetch("php/auth/login.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  return await res.json();
 }
 
-export async function registerUser(formData) {
-  // PHP TODO: POST to php/auth/register.php. Validate name/email/password,
-  // check duplicate users.email, hash with password_hash, insert users row.
-
-  // Logic to fulfill the registration request
-  return await apiRequest("php/auth/register.php", {
-        method: "POST",
-        body: JSON.stringify(formData),
+export async function registerUser(payload) {
+  const response = await fetch("../php/auth/register.php", {
+    method: "POST",
+    body: new URLSearchParams(payload)
   });
+
+  const data = await response.json();
+
+  if (!response.ok || data.error) {
+    throw new Error(data.error || "Registration failed");
+  }
+
+  return data;
 }
 
 export async function requestPasswordReset(formData) {
