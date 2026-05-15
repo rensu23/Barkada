@@ -16,7 +16,8 @@ $state = [
     "groups" => $groups,
     "group_members" => [],
     "contributions" => [],
-    "payment_records" => []
+    "payment_records" => [],
+    "activity_logs" => []
 ];
 
 if (count($groupIds) > 0) {
@@ -41,7 +42,7 @@ if (count($groupIds) > 0) {
          INNER JOIN contributions c ON c.contribution_id = pr.contribution_id
          INNER JOIN group_members gm ON gm.group_id = c.group_id AND gm.user_id = ?
          WHERE c.group_id IN ($placeholders)
-           AND (pr.user_id = ? OR gm.role = 'Treasurer')
+           AND (pr.user_id = ? OR LOWER(gm.role) = 'treasurer')
          ORDER BY pr.marked_at DESC";
     $stmt = $conn->prepare($paymentSql);
     $paymentTypes = "i" . $types . "i";
@@ -49,6 +50,28 @@ if (count($groupIds) > 0) {
     $stmt->bind_param($paymentTypes, ...$paymentParams);
     $stmt->execute();
     $state["payment_records"] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    $activitySql =
+        "SELECT al.activity_id, al.user_id, al.group_id, al.contribution_id, al.payment_id,
+                al.action, al.created_at,
+                u.name AS user_name,
+                g.group_name,
+                c.title AS contribution_title,
+                c.amount AS contribution_amount,
+                pr.status AS payment_status
+         FROM activity_logs al
+         LEFT JOIN users u ON u.user_id = al.user_id
+         LEFT JOIN `groups` g ON g.group_id = al.group_id
+         LEFT JOIN contributions c ON c.contribution_id = al.contribution_id
+         LEFT JOIN payment_records pr ON pr.payment_id = al.payment_id
+         WHERE al.group_id IN ($placeholders)
+         ORDER BY al.created_at DESC, al.activity_id DESC
+         LIMIT 60";
+    $stmt = $conn->prepare($activitySql);
+    $stmt->bind_param($types, ...$groupIds);
+    $stmt->execute();
+    $state["activity_logs"] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 }
 

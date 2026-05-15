@@ -52,7 +52,7 @@ CREATE TABLE `groups` (
   `target_amount` decimal(10,2) DEFAULT NULL,
   `deadline` date DEFAULT NULL,
   `join_code` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -81,8 +81,24 @@ CREATE TABLE `payment_records` (
   `contribution_id` int(11) NOT NULL,
   `status` varchar(20) NOT NULL,
   `marked_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `confirmed_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `confirmed_by` int(11) NOT NULL
+  `confirmed_at` timestamp NULL DEFAULT NULL,
+  `confirmed_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activity_logs`
+--
+
+CREATE TABLE `activity_logs` (
+  `activity_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  `contribution_id` int(11) DEFAULT NULL,
+  `payment_id` int(11) DEFAULT NULL,
+  `action` varchar(60) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -142,6 +158,16 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `unique_email` (`email`);
 
 --
+-- Indexes for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD PRIMARY KEY (`activity_id`),
+  ADD KEY `activity_user_idx` (`user_id`),
+  ADD KEY `activity_group_idx` (`group_id`),
+  ADD KEY `activity_contribution_idx` (`contribution_id`),
+  ADD KEY `activity_payment_idx` (`payment_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -176,6 +202,12 @@ ALTER TABLE `users`
   MODIFY `user_id` int(255) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -204,6 +236,15 @@ ALTER TABLE `group_members`
 ALTER TABLE `payment_records`
   ADD CONSTRAINT `payment_records_ibfk_1` FOREIGN KEY (`contribution_id`) REFERENCES `contributions` (`contribution_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `payment_records_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD CONSTRAINT `activity_logs_contribution_fk` FOREIGN KEY (`contribution_id`) REFERENCES `contributions` (`contribution_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `activity_logs_group_fk` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `activity_logs_payment_fk` FOREIGN KEY (`payment_id`) REFERENCES `payment_records` (`payment_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `activity_logs_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . "/../helpers/auth-guard.php";
+require_once __DIR__ . "/../helpers/activity.php";
 
 requirePost();
 $userId = requireLogin();
@@ -48,13 +49,15 @@ try {
 
     $stmt = $conn->prepare(
         "INSERT INTO payment_records (user_id, contribution_id, status, confirmed_by)
-         SELECT user_id, ?, 'Not Paid', 0
+         SELECT user_id, ?, 'Not Paid', NULL
          FROM group_members
          WHERE group_id = ?"
     );
     $stmt->bind_param("ii", $contributionId, $groupId);
     $stmt->execute();
     $stmt->close();
+
+    logActivity($conn, $userId, $groupId, $contributionId, null, "contribution_created");
 
     $conn->commit();
 

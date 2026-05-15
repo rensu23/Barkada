@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . "/../helpers/auth-guard.php";
+require_once __DIR__ . "/../helpers/activity.php";
 
 requirePost();
 $userId = requireLogin();
@@ -33,19 +34,18 @@ if ($paymentId <= 0) {
     }
 
     $status = "Not Paid";
-    $confirmedBy = 0;
     $stmt = $conn->prepare(
         "INSERT INTO payment_records (user_id, contribution_id, status, confirmed_by)
-         VALUES (?, ?, ?, ?)"
+         VALUES (?, ?, ?, NULL)"
     );
-    $stmt->bind_param("iisi", $userId, $contributionId, $status, $confirmedBy);
+    $stmt->bind_param("iis", $userId, $contributionId, $status);
     $stmt->execute();
     $paymentId = $stmt->insert_id;
     $stmt->close();
 }
 
 $stmt = $conn->prepare(
-    "SELECT pr.payment_id, pr.user_id, c.group_id
+    "SELECT pr.payment_id, pr.user_id, pr.contribution_id, c.group_id
      FROM payment_records pr
      INNER JOIN contributions c ON c.contribution_id = pr.contribution_id
      WHERE pr.payment_id = ?
@@ -67,10 +67,12 @@ if ((int) $payment["user_id"] !== $userId) {
 requireGroupMember($conn, $userId, (int) $payment["group_id"]);
 
 $status = "Pending";
-$stmt = $conn->prepare("UPDATE payment_records SET status = ?, marked_at = NOW(), confirmed_by = 0 WHERE payment_id = ?");
+$stmt = $conn->prepare("UPDATE payment_records SET status = ?, marked_at = NOW(), confirmed_at = NULL, confirmed_by = NULL WHERE payment_id = ?");
 $stmt->bind_param("si", $status, $paymentId);
 $stmt->execute();
 $stmt->close();
+
+logActivity($conn, $userId, (int) $payment["group_id"], (int) $payment["contribution_id"], $paymentId, "payment_marked_paid");
 
 jsonResponse([
     "success" => true,

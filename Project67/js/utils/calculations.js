@@ -111,5 +111,5 @@ export function getUserVisibleActivity(state, userId, activeGroupId = null) {
     ? [Number(activeGroupId)]
     : groups.map((group) => group.group_id);
 
-  return (state.activity_logs || []).filter((item) => !item.group_id || visibleGroupIds.includes(item.group_id));
+  return (state.activity_logs || []).filter((item) => !item.group_id || visibleGroupIds.includes(Number(item.group_id)));
 }

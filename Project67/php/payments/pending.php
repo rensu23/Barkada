@@ -17,11 +17,15 @@ $sql =
      INNER JOIN users u ON u.user_id = pr.user_id
      INNER JOIN contributions c ON c.contribution_id = pr.contribution_id
      INNER JOIN `groups` g ON g.group_id = c.group_id
-     INNER JOIN group_members gm ON gm.group_id = g.group_id AND gm.user_id = ? AND gm.role = 'Treasurer'
+     INNER JOIN group_members gm ON gm.group_id = g.group_id AND gm.user_id = ?
      WHERE pr.status = 'Pending'";
 
 $params = [$userId];
 $types = "i";
+
+$sql .= " AND (g.treasurer_id = ? OR LOWER(gm.role) = 'treasurer')";
+$params[] = $userId;
+$types .= "i";
 
 if ($groupId > 0) {
     $sql .= " AND g.group_id = ?";

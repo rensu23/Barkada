@@ -20,6 +20,7 @@ html[data-theme="dark"] {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: var(--font-sans);
   background:
     radial-gradient(circle at top right, rgba(148, 190, 187, 0.22), transparent 26%),
@@ -45,6 +46,7 @@ input,
 select,
 textarea {
   font: inherit;
+  min-width: 0;
 }
 
 button {

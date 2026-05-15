@@ -110,7 +110,7 @@ export async function initGroupsPage() {
         <div class="summary-row"><span>Target amount</span><strong>${formatCurrency(group.target_amount)}</strong></div>
         <div class="summary-row"><span>Deadline</span><strong>${formatDate(group.deadline)}</strong></div>
       `
-      : `<div class="summary-row"><span>Backend source</span><strong>groups + group_members</strong></div>`;
+      : `<div class="summary-row"><span>Status</span><strong>Group details not loaded</strong></div>`;
     document.querySelector("[data-group-tools] .detail-list").innerHTML = `
       <div class="summary-row"><span>Your role</span><strong>${group?.member_role || "Member"}</strong></div>
       <div class="summary-row"><span>Join code</span><strong>${group?.join_code || "Hidden for members"}</strong></div>

@@ -15,8 +15,13 @@ export async function createContribution(payload) {
   return postJson("contributions/create.php", payload);
 }
 
-export async function getContributionHistory(userId) {
-  const data = await fetchJson(apiUrl("payments/history.php"));
+export async function getContributionHistory(query = {}) {
+  const params = new URLSearchParams();
+  Object.entries(query).forEach(([key, value]) => {
+    if (value && value !== "All") params.set(key, value);
+  });
+  const suffix = params.toString() ? `?${params}` : "";
+  const data = await fetchJson(`${apiUrl("payments/history.php")}${suffix}`);
   return data.history || [];
 }
 

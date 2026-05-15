@@ -21,5 +21,5 @@ $stmt->close();
 
 jsonResponse([
     "success" => true,
-    "message" => "If the email exists, you may continue to the reset password page."
+    "message" => "Email checked. Opening the reset password page..."
 ]);

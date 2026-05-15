@@ -84,6 +84,7 @@
 .table-card,
 .auth-card {
   padding: clamp(1.05rem, 2.4vw, 1.55rem);
+  width: 100%;
   overflow-wrap: anywhere;
 }
 
@@ -195,6 +196,7 @@
 .inline-actions {
   display: grid;
   gap: var(--space-4);
+  min-width: 0;
 }
 
 .inline-actions {
@@ -303,6 +305,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .member-row,
@@ -405,6 +408,20 @@ th:last-child {
   gap: 0.45rem;
 }
 
+.sidebar-brand {
+  justify-content: center;
+}
+
+.sidebar-nav {
+  width: 100%;
+  align-items: center;
+}
+
+.sidebar-nav .nav-group {
+  width: 100%;
+  align-items: center;
+}
+
 .nav-link,
 .bottom-nav-link {
   display: flex;
@@ -419,6 +436,18 @@ th:last-child {
 
 .nav-link {
   padding: 0.72rem 0.8rem;
+}
+
+.nav-link-icon-only {
+  width: 2.75rem;
+  height: 2.75rem;
+  justify-content: center;
+  padding: 0;
+  margin-inline: auto;
+}
+
+.sidebar-join {
+  margin-top: auto;
 }
 
 .nav-link > span:last-child {
@@ -521,6 +550,7 @@ th:last-child {
   justify-content: end;
   align-items: center;
   gap: 0.55rem;
+  min-width: 0;
 }
 
 .topbar-actions .button-ghost,
@@ -722,6 +752,7 @@ th:last-child {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
+  overflow: hidden;
 }
 
 .member-status-grid,
@@ -751,6 +782,25 @@ th:last-child {
 
 .history-mobile-list {
   display: none;
+}
+
+.history-bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  align-items: start;
+}
+
+.history-card {
+  align-self: start;
+}
+
+.history-card-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--color-surface));
 }
 
 .empty-card {
@@ -902,6 +952,31 @@ th:last-child {
   }
 }
 
+@media (max-width: 760px) {
+  .header-actions,
+  .inline-actions {
+    width: 100%;
+  }
+
+  .header-actions > *,
+  .inline-actions > * {
+    flex: 1 1 12rem;
+  }
+
+  .topbar-actions .context-picker,
+  .topbar-actions .profile-name {
+    display: none;
+  }
+
+  .member-list-row,
+  .payment-row,
+  .mobile-list-item,
+  .data-row,
+  .history-card {
+    padding: 0.9rem;
+  }
+}
+
 /* Refinements for the second UI pass: tighter controls, clearer nav, and less visual bulk. */
 .button,
 .button-secondary,
@@ -939,7 +1014,7 @@ th:last-child {
 .context-picker {
   display: grid;
   gap: 0.25rem;
-  min-width: min(18rem, 100%);
+  min-width: min(14rem, 100%);
   color: var(--color-text-muted);
   font-size: 0.82rem;
   font-weight: 700;

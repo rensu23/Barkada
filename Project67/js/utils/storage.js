@@ -4,6 +4,7 @@ const emptyDatabaseShape = {
   group_members: [],
   contributions: [],
   payment_records: [],
+  activity_logs: [],
 };
 
 /*

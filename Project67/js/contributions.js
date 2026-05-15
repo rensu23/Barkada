@@ -17,6 +17,36 @@ function renderEmpty(target, title, message) {
   target.innerHTML = `<article class="empty-card"><h3>${title}</h3><p class="helper-text">${message}</p></article>`;
 }
 
+function namesList(people = []) {
+  if (!people.length) return "None";
+  return people.map((person) => person.name).join(", ");
+}
+
+function historyCardTemplate(item) {
+  return `
+    <article class="history-card">
+      <div class="page-header">
+        <div class="page-header-copy">
+          <p class="eyebrow">${item.group.group_name}</p>
+          <h3>${item.contribution.title}</h3>
+          <p class="helper-text">Created/marked ${formatShortDateTime(item.marked_at)} - Latest update ${formatShortDateTime(item.latest_update)}</p>
+        </div>
+        <span class="status-chip ${paymentClass(item.status)}">${item.status}</span>
+      </div>
+      <div class="history-card-main">
+        <div class="mini-stat"><span>Amount</span><strong>${formatCurrency(item.contribution.amount)}</strong></div>
+        <div class="mini-stat"><span>Group creator</span><strong>${item.group.creator_name}</strong></div>
+        <div class="mini-stat"><span>Member record</span><strong>${item.user.name}</strong></div>
+      </div>
+      <div class="detail-list">
+        <div class="summary-row"><span>Members who paid</span><strong>${namesList(item.members.paid)}</strong></div>
+        <div class="summary-row"><span>Members not paid</span><strong>${namesList(item.members.not_paid)}</strong></div>
+        <div class="summary-row"><span>Pending review</span><strong>${namesList(item.members.pending)}</strong></div>
+      </div>
+    </article>
+  `;
+}
+
 function currentQueryFromControls() {
   return {
     search: document.querySelector("[data-contributions-search]")?.value || "",
@@ -153,24 +183,31 @@ export async function initContributionsPage() {
   }
 
   if (page === "history") {
-    const history = await getContributionHistory(session?.user_id);
-    const table = document.querySelector("[data-history-table]");
-    const mobileList = document.querySelector("[data-history-list]");
-    if (!history.length) {
-      if (table) table.innerHTML = `<tr><td colspan="5">No payment history yet.</td></tr>`;
-      renderEmpty(mobileList, "No payment history yet", "Payment records will appear here after dues are created.");
-      return;
-    }
+    const sortControl = document.querySelector("[data-history-sort]");
+    const loadHistory = async () => {
+      const history = await getContributionHistory({ sort: sortControl?.value || "newest" });
+      const table = document.querySelector("[data-history-table]");
+      const mobileList = document.querySelector("[data-history-list]");
+      if (!history.length) {
+        if (table) table.innerHTML = `<tr><td colspan="5">No payment history yet.</td></tr>`;
+        renderEmpty(mobileList, "No payment history yet", "Payment records will appear here after dues are created.");
+        return;
+      }
 
-    const rows = history.map((item) => `
-      <tr>
-        <td>${item.contribution.title}</td>
-        <td>${item.group.group_name}</td>
-        <td>${formatCurrency(item.contribution.amount)}</td>
-        <td><span class="status-chip ${paymentClass(item.status)}">${item.status}</span></td>
-        <td>${formatShortDateTime(item.marked_at || item.confirmed_at)}</td>
-      </tr>
-    `).join("");
-    table.innerHTML = rows;
+      const rows = history.map((item) => `
+        <tr>
+          <td>${item.contribution.title}</td>
+          <td>${item.group.group_name}</td>
+          <td>${formatCurrency(item.contribution.amount)}</td>
+          <td><span class="status-chip ${paymentClass(item.status)}">${item.status}</span></td>
+          <td>${formatShortDateTime(item.latest_update)}</td>
+        </tr>
+      `).join("");
+      if (table) table.innerHTML = rows;
+      if (mobileList) mobileList.innerHTML = history.map(historyCardTemplate).join("");
+    };
+
+    sortControl?.addEventListener("change", loadHistory);
+    await loadHistory();
   }
 }

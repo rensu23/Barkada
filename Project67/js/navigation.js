@@ -29,12 +29,14 @@ function groupedLinks(links) {
   })).filter((group) => group.links.length);
 }
 
-function navLinkTemplate(item, currentPage, withMeta = true) {
+function navLinkTemplate(item, currentPage, options = {}) {
+  const withMeta = typeof options === "boolean" ? options : options.withMeta ?? true;
+  const iconOnly = typeof options === "object" && options.iconOnly;
   const active = isActivePage(item, currentPage);
   return `
-    <a class="nav-link ${active ? "is-active" : ""}" href="${item.href}" ${active ? 'aria-current="page"' : ""}>
+    <a class="nav-link ${iconOnly ? "nav-link-icon-only" : ""} ${active ? "is-active" : ""}" href="${item.href}" ${active ? 'aria-current="page"' : ""} title="${item.label}" aria-label="${item.label}">
       <span class="nav-icon" aria-hidden="true">${ICONS[item.icon] || ""}</span>
-      <span>${item.label}${withMeta && item.meta ? `<small>${item.meta}</small>` : ""}</span>
+      <span class="${iconOnly ? "sr-only" : ""}">${item.label}${withMeta && item.meta ? `<small>${item.meta}</small>` : ""}</span>
     </a>
   `;
 }
@@ -68,32 +70,24 @@ function publicHeaderTemplate() {
 
 function appSidebarTemplate(role, currentPage, session, groups, activeGroupId) {
   const links = NAV_ITEMS[role] || NAV_ITEMS.member;
-  const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
-  const displayName = session?.name || "Loading user";
-  const groupText = activeGroup ? `${activeGroup.group_name} - ${activeGroup.member_role}` : "No active group yet";
   return `
-    <a class="brand" href="../pages/dashboard.html">
+    <a class="brand sidebar-brand" href="../pages/dashboard.html" title="Barkada dashboard" aria-label="Barkada dashboard">
       <span class="brand-mark">B</span>
-      <span>Barkada</span>
     </a>
-    <div class="spotlight-card">
-      <p class="eyebrow">${role === "treasurer" ? "Treasurer workspace" : "Member workspace"}</p>
-      <h3>${displayName}</h3>
-      <p class="helper-text">${groupText}</p>
-    </div>
-    <nav class="surface-list" aria-label="Main navigation">
+    <nav class="surface-list sidebar-nav" aria-label="Main navigation">
       ${groupedLinks(links)
         .map(
           (group) => `
           <div class="nav-group">
-            <p class="nav-section-label">${group.lane}</p>
-            ${group.links.map((item) => navLinkTemplate(item, currentPage)).join("")}
+            ${group.links.map((item) => navLinkTemplate(item, currentPage, { iconOnly: true })).join("")}
           </div>
         `,
         )
         .join("")}
     </nav>
-    <a class="button-secondary" href="../pages/join-group.html">Join with code</a>
+    <a class="icon-button sidebar-join" href="../pages/join-group.html" title="Join with code" aria-label="Join with code">
+      ${ICONS.Join}
+    </a>
   `;
 }
 
@@ -114,10 +108,6 @@ function appTopbarTemplate(currentPage, session, groups, activeGroupId, role) {
       <a class="icon-button" href="../pages/settings.html" aria-label="Open settings">
         ${ICONS.Gear}
       </a>
-      <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle color theme">
-        ${ICONS.Moon}
-        <span class="sr-only" data-theme-label>Dark mode</span>
-      </button>
       <a class="button-secondary" href="../pages/profile.html" aria-label="Open profile for ${displayName}">
         <span class="nav-icon">${ICONS.User}</span>
         <span class="profile-name">${displayName.split(" ")[0]}</span>
@@ -199,7 +189,8 @@ export function initAppNavigation() {
   const session = getSession();
   const groups = session?.groups || [];
   const activeGroupId = session?.active_group_id || groups[0]?.group_id || null;
-  const role = session?.role || session?.effective_role || "member";
+  const activeGroup = groups.find((group) => Number(group.group_id) === Number(activeGroupId));
+  const role = activeGroup?.member_role === "Treasurer" ? "treasurer" : "member";
   const sidebar = document.querySelector("[data-sidebar]");
   const topbar = document.querySelector("[data-topbar]");
   const bottomNav = document.querySelector("[data-bottom-nav]");
@@ -244,7 +235,8 @@ export function initRoleSwitcher() {
   const field = document.querySelector("[data-role-switch]");
   if (!field) return;
   const session = getSession();
-  field.value = session?.role || session?.effective_role || "member";
+  const activeGroup = (session?.groups || []).find((group) => Number(group.group_id) === Number(session?.active_group_id));
+  field.value = activeGroup?.member_role === "Treasurer" ? "treasurer" : "member";
   field.disabled = true;
 }
 

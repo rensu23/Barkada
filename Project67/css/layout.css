@@ -10,6 +10,7 @@
 
 .public-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
@@ -50,11 +51,18 @@
 .auth-layout {
   min-height: calc(100vh - 2rem);
   display: grid;
-  align-items: center;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.auth-layout > main {
+  align-self: center;
+  padding-block: clamp(1rem, 4vw, 2rem);
 }
 
 .auth-grid {
   display: grid;
+  align-items: center;
   gap: var(--space-8);
 }
 
@@ -64,10 +72,12 @@
 
 .app-shell {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app-layout {
   min-height: 100vh;
+  min-width: 0;
 }
 
 .app-sidebar {
@@ -76,6 +86,8 @@
 
 .app-main {
   min-height: 100vh;
+  min-width: 0;
+  overflow-x: hidden;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 1rem);
 }
 
@@ -127,6 +139,7 @@
 .panel-grid {
   display: grid;
   gap: var(--space-4);
+  min-width: 0;
 }
 
 .mobile-bottom-nav {
@@ -185,14 +198,17 @@ body.has-mobile-menu .mobile-bottom-nav {
   .app-sidebar {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--space-4);
-    padding: 1rem 0.85rem;
+    padding: 1rem 0.65rem;
     border-right: 1px solid var(--color-border);
     background: color-mix(in srgb, var(--color-surface) 88%, transparent);
     backdrop-filter: blur(14px);
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .app-main {
@@ -216,9 +232,32 @@ body.has-mobile-menu .mobile-bottom-nav {
   }
 }
 
+@media (min-width: 1600px) {
+  .page-content {
+    width: min(1440px, calc(100vw - 4rem));
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-grid,
+  .two-column,
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .stats-grid,
+  .panel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 540px) {
+  .public-shell {
+    padding: 0.75rem;
+  }
+
   .app-topbar {
     grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline: 0.75rem;
   }
 
   .page-content {

@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . "/../helpers/auth-guard.php";
+require_once __DIR__ . "/../helpers/activity.php";
 
 requirePost();
 $userId = requireLogin();
@@ -59,6 +60,8 @@ try {
     $stmt->bind_param("iis", $userId, $groupId, $role);
     $stmt->execute();
     $stmt->close();
+
+    logActivity($conn, $userId, $groupId, null, null, "group_created");
 
     $conn->commit();
     startBarkadaSession();

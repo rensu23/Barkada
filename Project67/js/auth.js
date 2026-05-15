@@ -133,8 +133,16 @@ export function initAuthPages() {
       }
       try {
         const result = await requestPasswordReset(payload);
-        document.querySelector("[data-auth-feedback]").textContent = result.message || "Reset instructions sent.";
-        document.querySelector("[data-auth-feedback]").className = "success-text";
+        const feedback = document.querySelector("[data-auth-feedback]");
+        feedback.textContent = result.message || "Email checked. Opening the reset page...";
+        feedback.className = "success-text";
+
+        // The project has no email-token table, so the next page asks for the
+        // new password and uses this email as the account identifier.
+        window.setTimeout(() => {
+          const params = new URLSearchParams({ email: payload.email });
+          window.location.href = `./reset-password.html?${params.toString()}`;
+        }, 500);
       } catch (error) {
         document.querySelector("[data-auth-feedback]").textContent = error.message;
         document.querySelector("[data-auth-feedback]").className = "error-text";
@@ -144,6 +152,11 @@ export function initAuthPages() {
 
   if (page === "reset-password") {
     const form = document.querySelector("[data-reset-form]");
+    const emailFromLink = new URLSearchParams(window.location.search).get("email");
+    if (form?.email && emailFromLink) {
+      form.email.value = emailFromLink;
+    }
+
     form?.addEventListener("submit", async (event) => {
       event.preventDefault();
       clearErrors(form);

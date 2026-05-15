@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . "/../helpers/auth-guard.php";
+require_once __DIR__ . "/../helpers/activity.php";
 
 requirePost();
 $userId = requireLogin();
@@ -16,7 +17,7 @@ if ($paymentId <= 0) {
 }
 
 $stmt = $conn->prepare(
-    "SELECT pr.payment_id, c.group_id
+    "SELECT pr.payment_id, pr.contribution_id, c.group_id
      FROM payment_records pr
      INNER JOIN contributions c ON c.contribution_id = pr.contribution_id
      WHERE pr.payment_id = ?
@@ -38,6 +39,8 @@ $stmt = $conn->prepare("UPDATE payment_records SET status = ?, confirmed_at = NO
 $stmt->bind_param("sii", $status, $userId, $paymentId);
 $stmt->execute();
 $stmt->close();
+
+logActivity($conn, $userId, (int) $payment["group_id"], (int) $payment["contribution_id"], $paymentId, "payment_rejected");
 
 jsonResponse([
     "success" => true,

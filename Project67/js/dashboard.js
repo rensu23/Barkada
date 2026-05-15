@@ -47,6 +47,25 @@ function buildStatusSegments(metricsState) {
   return Object.values(summary);
 }
 
+function activityText(item) {
+  const actor = item.user_name || "A member";
+  const group = item.group_name || "a group";
+  const contribution = item.contribution_title ? ` for ${item.contribution_title}` : "";
+  const labels = {
+    group_created: `${actor} created ${group}`,
+    contribution_created: `${actor} added a contribution${contribution}`,
+    contribution_updated: `${actor} updated a contribution${contribution}`,
+    payment_marked_paid: `${actor} marked paid${contribution}`,
+    payment_confirmed: `${actor} confirmed a payment${contribution}`,
+    payment_rejected: `${actor} rejected a payment${contribution}`,
+  };
+
+  return {
+    title: labels[item.action] || `${actor} updated ${group}`,
+    meta: `${group}${item.payment_status ? ` - ${item.payment_status}` : ""}`,
+  };
+}
+
 function groupPaymentSummary(metricsState, groupId) {
   const contributionIds = metricsState.contributions
     .filter((item) => Number(item.group_id) === Number(groupId))
@@ -204,12 +223,13 @@ export async function initDashboardPage() {
 
   const session = await getCurrentSession() || { user_id: null, active_group_id: null, role: "member" };
   const state = getState();
-  const role = session.role || getActiveRoleKey(state, session);
+  const role = getActiveRoleKey(state, session);
   const metricsState = buildDashboardMetrics(state, session.user_id, session.active_group_id);
   const pending = role === "treasurer" ? await getPendingPayments(session.active_group_id) : [];
   const metrics = document.querySelector("[data-dashboard-stats]");
   const charts = document.querySelector("[data-dashboard-charts]");
   const activity = document.querySelector("[data-dashboard-activity]");
+  const activitySort = document.querySelector("[data-activity-sort]");
   const overview = document.querySelector("[data-dashboard-overview]");
   const actions = document.querySelector("[data-dashboard-actions]");
   const segments = buildStatusSegments(metricsState);
@@ -263,19 +283,32 @@ export async function initDashboardPage() {
     ? groupsToShow.map((group) => activeGroupTemplate(group, metricsState, group.member_role === "Treasurer" ? "treasurer" : "member")).join("")
     : `<article class="empty-card"><h3>No active group yet</h3><p class="helper-text">Join with a group code or create a group to start tracking contributions.</p></article>`;
 
-  const recentActivity = getUserVisibleActivity(state, session.user_id, session.active_group_id);
-  activity.innerHTML = recentActivity.length ? recentActivity
-    .slice(0, 5)
-    .map(
-      (item) => `
-      <article class="timeline-item">
-        <div>
-          <strong>${item.title}</strong>
-          <p class="helper-text">${item.meta}</p>
-        </div>
-        <span class="muted">${formatShortDateTime(item.created_at)}</span>
-      </article>
-    `,
-    )
-    .join("") : `<article class="empty-card"><h3>No activity yet</h3><p class="helper-text">Recent payment updates will appear after members start marking dues.</p></article>`;
+  const renderActivity = () => {
+    const direction = activitySort?.value || "newest";
+    const recentActivity = getUserVisibleActivity(state, session.user_id, session.active_group_id)
+      .sort((a, b) => {
+        const left = new Date(a.created_at).getTime();
+        const right = new Date(b.created_at).getTime();
+        return direction === "oldest" ? left - right : right - left;
+      });
+
+    activity.innerHTML = recentActivity.length ? recentActivity
+      .slice(0, 8)
+      .map((item) => {
+        const text = activityText(item);
+        return `
+          <article class="timeline-item">
+            <div>
+              <strong>${text.title}</strong>
+              <p class="helper-text">${text.meta}</p>
+            </div>
+            <span class="muted">${formatShortDateTime(item.created_at)}</span>
+          </article>
+        `;
+      })
+      .join("") : `<article class="empty-card"><h3>No activity yet</h3><p class="helper-text">Create a group, add a contribution, or mark a payment to start the feed.</p></article>`;
+  };
+
+  activitySort?.addEventListener("change", renderActivity);
+  renderActivity();
 }

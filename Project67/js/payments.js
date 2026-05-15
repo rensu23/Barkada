@@ -50,7 +50,7 @@ export async function initPaymentsPage() {
     button.addEventListener("click", () => {
       const overlay = openModal({
         title: "Reject payment",
-        body: "Add a short note if the backend schema is extended to store rejection remarks.",
+        body: "Reject this payment claim so the member can check and mark it again later.",
         actions: `
           <form data-rejection-form class="stack">
             <textarea name="note" rows="4" placeholder="Reason for rejection"></textarea>

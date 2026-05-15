@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . "/../helpers/auth-guard.php";
+require_once __DIR__ . "/../helpers/activity.php";
 
 requirePost();
 $userId = requireLogin();
@@ -52,6 +53,8 @@ $stmt = $conn->prepare(
 $stmt->bind_param("sdssssi", $title, $amount, $type, $frequency, $dueDate, $notes, $contributionId);
 $stmt->execute();
 $stmt->close();
+
+logActivity($conn, $userId, (int) $row["group_id"], $contributionId, null, "contribution_updated");
 
 jsonResponse([
     "success" => true,

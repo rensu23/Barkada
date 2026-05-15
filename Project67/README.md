@@ -10,7 +10,10 @@ Barkada is a PHP + MySQL contribution tracker for groups. Users can register, lo
 4. Import `../barkada_db.sql`.
 5. Check `php/config/database.php` if your MySQL username or password is different.
 
-If you already imported the older database, run `docs/database-migration-2026-05-01.sql` in phpMyAdmin to add contribution due dates, contribution notes, and uniqueness checks without deleting data.
+If you already imported the older database, run these migrations in phpMyAdmin without deleting data:
+
+- `docs/database-migration-2026-05-01.sql`
+- `docs/database-migration-2026-05-15.sql`
 
 The app uses these SQL tables only:
 
@@ -19,6 +22,7 @@ The app uses these SQL tables only:
 - `group_members`
 - `contributions`
 - `payment_records`
+- `activity_logs`
 
 ## How To Run
 
@@ -52,6 +56,7 @@ The provided SQL file has the table structure only and does not include default 
 
 - `php/config/database.php` - shared mysqli database connection
 - `php/helpers/auth-guard.php` - session and role checking helpers
+- `php/helpers/activity.php` - simple activity logger for dashboard updates
 - `php/helpers/response.php` - JSON response and request helpers
 - `php/auth/` - login, register, logout, session, and password reset actions
 - `php/groups/` - create, join, list, detail, update, members, and active group actions
@@ -60,6 +65,7 @@ The provided SQL file has the table structure only and does not include default 
 - `php/users/` - profile view and profile update actions
 - `js/services/` - frontend API service functions that call the PHP endpoints
 - `docs/database-migration-2026-05-01.sql` - migration for existing databases imported before the due date/notes update
+- `docs/database-migration-2026-05-15.sql` - migration for activity logs and cleaner payment confirmation timestamps
 
 ## Notes For Defense
 
@@ -71,6 +77,7 @@ The provided SQL file has the table structure only and does not include default 
 - Treasurer-only actions are checked again in PHP, not only in JavaScript.
 - The system does not invent columns that are not in `barkada_db.sql`.
 - Contribution `due_date` and `notes` are stored in the updated `contributions` table.
+- Dashboard activity comes from the `activity_logs` table and is written when groups, contributions, and payment statuses change.
 - The current SQL has no reset-token or rejection-note table, so those flows are kept simple.
 
 ## Troubleshooting
@@ -81,3 +88,4 @@ The provided SQL file has the table structure only and does not include default 
 - If a member cannot see a group, check the `group_members` table for the correct `user_id` and `group_id`.
 - If a treasurer action fails, check that the user's role is exactly `Treasurer` and `groups.treasurer_id` matches their `user_id`.
 - If the due date or notes fields cause SQL errors, run the migration file on the existing database.
+- If recent activity is empty on an old database, run `docs/database-migration-2026-05-15.sql`.
